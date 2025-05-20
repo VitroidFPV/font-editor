@@ -1,3 +1,20 @@
+<script setup lang="ts">
+import { useFontStore } from "../../stores/fontStore"
+import CharacterCanvas from "./CharacterCanvas.vue"
+
+const fontStore = useFontStore()
+
+// Method to get character index from row and column
+function getCharacterIndex(row: number, col: number): number {
+	return row * 16 + col
+}
+
+// Format an integer as hex with uppercase letters and padding
+function toHex(value: number): string {
+	return value.toString(16).padStart(2, "0").toUpperCase()
+}
+</script>
+
 <template>
 	<div class="grid-container">
 		<!-- Header row (x-axis indices) -->
@@ -21,24 +38,22 @@
 			</div>
 
 			<!-- Grid cells -->
-			<!--
-				Calculate the hex value for this cell:
-				1. Convert row (y-1) and column (x-1) to 0-based indices
-				2. Calculate position = row * 16 + column (0-255 decimal)
-				3. Convert to hexadecimal string
-				4. Pad with leading zero if needed
-				5. Convert to uppercase for display
-			-->
 			<UTooltip
 				v-for="x in 16"
 				:key="'cell-' + x + '-' + y"
-				:text="
-					((y - 1) * 16 + (x - 1)).toString(16).padStart(2, '0').toUpperCase()
-				"
+				:text="toHex(getCharacterIndex(y - 1, x - 1))"
 			>
 				<div
-					class="grid-cell border border-neutral-800 hover:bg-neutral-700 cursor-pointer flex items-center justify-center text-xs text-neutral-400"
-				></div>
+					class="grid-cell border border-neutral-800 hover:bg-neutral-700 cursor-pointer flex items-center justify-center"
+				>
+					<CharacterCanvas
+						v-if="fontStore.hasData"
+						:character-index="getCharacterIndex(y - 1, x - 1)"
+					/>
+					<span v-else class="text-xs text-neutral-400">
+						{{ toHex(getCharacterIndex(y - 1, x - 1)) }}
+					</span>
+				</div>
 			</UTooltip>
 		</template>
 	</div>
