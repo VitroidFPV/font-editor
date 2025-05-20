@@ -1,60 +1,117 @@
+<script setup lang="ts">
+import { useFontStore } from "../../stores/fontStore"
+import { computed } from "vue"
+
+// Props for the component
+const props = defineProps({
+	index: {
+		type: Number,
+		default: 3 // Default to character #3 if not specified
+	}
+})
+
+const fontStore = useFontStore()
+
+// Get the character at the specified index
+const character = computed(() => {
+	if (fontStore.hasData && fontStore.characters.length > props.index) {
+		return fontStore.characters[props.index]
+	}
+	return null
+})
+
+// Helper function to determine cell color based on pixel value
+function getCellStyle(pixelValue: number | undefined) {
+	if (pixelValue === undefined) return "bg-transparent"
+
+	// 00 (0) = black, 10 (2) = white, X1 (1 or 3) = transparent
+	switch (pixelValue) {
+		case 0: // Black
+			return "bg-black"
+		case 2: // White
+			return "bg-white"
+		default: // Transparent (1 or 3)
+			return "bg-transparent"
+	}
+}
+
+// Safe way to get a pixel value
+function getPixelValue(x: number, y: number): number | undefined {
+	return character.value?.pixels?.[y]?.[x]
+}
+
+// Format an integer as hex with uppercase letters
+function toHex(value: number): string {
+	return value.toString(16).toUpperCase()
+}
+</script>
+
 <template>
-	<div class="grid-container">
-		<!-- Header row (x-axis indices) -->
-		<div class="header-cell"></div>
-		<!-- Empty corner cell -->
-		<div
-			v-for="x in 16"
-			:key="'header-' + x"
-			class="font-mono text-xs text-neutral-600 flex items-end justify-center"
-		>
-			{{ (x - 1).toString(16).toUpperCase() }}
+	<div
+		v-if="!fontStore.hasData"
+		class="flex items-center justify-center h-64 text-neutral-400"
+	>
+		Please load an MCM file to display character data
+	</div>
+
+	<div
+		v-else-if="!character"
+		class="flex items-center justify-center h-64 text-neutral-400"
+	>
+		Character #{{ props.index }} (Hex: {{ toHex(props.index) }}) not found
+	</div>
+
+	<div v-else>
+		<h3 class="text-lg font-medium mb-2">
+			Character #{{ props.index }} (Hex: {{ toHex(props.index) }})
+		</h3>
+
+		<div class="grid-container">
+			<!-- Grid rows with cells -->
+			<template v-for="y in 18" :key="'row-' + y">
+				<!-- Grid cells -->
+				<UTooltip
+					v-for="x in 12"
+					:key="'cell-' + x + '-' + y"
+					:text="'Position: ' + (x - 1) + ',' + (y - 1)"
+				>
+					<div
+						class="grid-cell border border-neutral-800 hover:bg-neutral-700/50 cursor-pointer flex items-center justify-center text-xs text-neutral-400"
+						:class="getCellStyle(getPixelValue(x - 1, y - 1))"
+					></div>
+				</UTooltip>
+			</template>
 		</div>
 
-		<!-- Grid rows with y-axis labels and cells -->
-		<template v-for="y in 16" :key="'row-' + y">
-			<!-- Y axis label (hex) -->
-			<div
-				class="font-mono text-xs text-neutral-600 flex flex-col items-end justify-center"
-			>
-				{{ (y - 1).toString(16).toUpperCase() }}
+		<div class="mt-4 flex gap-2">
+			<div class="flex items-center">
+				<div class="w-4 h-4 bg-black mr-1"></div>
+				<span class="text-xs">Black (00)</span>
 			</div>
-
-			<!-- Grid cells -->
-			<!--
-				Calculate the hex value for this cell:
-				1. Convert row (y-1) and column (x-1) to 0-based indices
-				2. Calculate position = row * 16 + column (0-255 decimal)
-				3. Convert to hexadecimal string
-				4. Pad with leading zero if needed
-				5. Convert to uppercase for display
-			-->
-			<UTooltip
-				v-for="x in 16"
-				:key="'cell-' + x + '-' + y"
-				:text="
-					((y - 1) * 16 + (x - 1)).toString(16).padStart(2, '0').toUpperCase()
-				"
-			>
+			<div class="flex items-center">
+				<div class="w-4 h-4 bg-white mr-1 border border-neutral-800"></div>
+				<span class="text-xs">White (10)</span>
+			</div>
+			<div class="flex items-center">
 				<div
-					class="grid-cell border border-neutral-800 hover:bg-neutral-700 cursor-pointer flex items-center justify-center text-xs text-neutral-400"
+					class="w-4 h-4 bg-transparent mr-1 border border-neutral-800"
 				></div>
-			</UTooltip>
-		</template>
+				<span class="text-xs">Transparent (X1)</span>
+			</div>
+		</div>
 	</div>
 </template>
 
 <style scoped>
 .grid-container {
 	display: grid;
-	grid-template-columns: auto repeat(16, 1fr);
-	grid-template-rows: auto repeat(16, 1fr);
-	min-width: 100%;
+	grid-template-columns: repeat(12, 1fr);
+	grid-template-rows: repeat(18, 1fr);
+	width: fit-content;
 }
 
-.header-cell,
 .grid-cell {
-	aspect-ratio: 12/18;
-	min-width: 100%;
+	aspect-ratio: 1/1;
+	width: 32px;
 }
 </style>

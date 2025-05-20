@@ -48,13 +48,13 @@ function parseMcmToJson(mcmContent: string): McmData | null {
 
 		// Process the binary data into characters
 		// Each character is 12x18 pixels (216 pixels total)
-		// Which means each character takes up 64 lines in the file (since there are 64 bytes per character, with 3 pixels per byte)
+		// Each byte contains 4 pixels (2 bits per pixel), so we need 54 bytes per character (216/4)
 		const characterCount = 256 // MCM files contain 256 characters
 		const characters: McmCharacter[] = []
 
 		for (let charIndex = 0; charIndex < characterCount; charIndex++) {
-			// For each character, we have 64 lines (bytes) of data
-			const charStartLine = charIndex * 64
+			// For each character, we have 54 lines (bytes) of data
+			const charStartLine = charIndex * 64 // Still 64 lines reserved per character in the file
 			const charDataLines = dataLines.slice(charStartLine, charStartLine + 64)
 
 			// Initialize a 12x18 pixel grid for this character
@@ -63,15 +63,18 @@ function parseMcmToJson(mcmContent: string): McmData | null {
 				.map(() => Array(12).fill(0))
 
 			// Process each byte (line) for this character
-			for (let byteIndex = 0; byteIndex < charDataLines.length; byteIndex++) {
+			// We only need to process 54 bytes (lines) for each character
+			const bytesNeeded = Math.ceil((12 * 18) / 4) // = 54 bytes for 12x18 pixels with 4 pixels per byte
+
+			for (let byteIndex = 0; byteIndex < bytesNeeded; byteIndex++) {
 				const byteStr = charDataLines[byteIndex]?.trim() || ""
 
 				// Check if the line is a valid 8-bit binary number
 				if (byteStr.length === 8 && /^[01]+$/.test(byteStr)) {
 					// For every byte, we have 4 pixels (2 bits per pixel)
 					// We need to determine which row and column this belongs to
-					const row = Math.floor(byteIndex / 4) // 4 bytes per row (12 pixels ÷ 3 pixels per byte)
-					const columnStart = (byteIndex % 4) * 3 // Each byte represents 3 pixels
+					const row = Math.floor(byteIndex / 3) // 3 bytes per row (12 pixels ÷ 4 pixels per byte)
+					const columnStart = (byteIndex % 3) * 4 // Each byte represents 4 pixels
 
 					// Process each pair of bits as one pixel
 					for (let bitPairIndex = 0; bitPairIndex < 4; bitPairIndex++) {

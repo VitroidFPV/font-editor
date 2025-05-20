@@ -1,26 +1,33 @@
 <script setup lang="ts">
-import { ref, defineEmits } from "vue"
+import { ref } from "vue"
+import { useFontStore } from "../../stores/fontStore"
 
 const file = ref<File | null>(null)
-const mcmData = ref(null)
 const isLoading = ref(false)
 const error = ref<string | null>(null)
+
+// Get the font store
+const fontStore = useFontStore()
 
 function handleFileChange(event: Event) {
 	const input = event.target as HTMLInputElement
 	if (input.files && input.files.length > 0) {
 		file.value = input.files[0] as File
+		// Clear any previous errors when selecting a new file
+		error.value = null
 	}
 }
 
 async function readFileAndPostToApi() {
 	if (!file.value) {
 		error.value = "No file selected"
+		fontStore.setError("No file selected")
 		return
 	}
 
 	if (!file.value.name.endsWith(".mcm")) {
 		error.value = "Selected file must be an MCM file"
+		fontStore.setError("Selected file must be an MCM file")
 		return
 	}
 
@@ -43,25 +50,24 @@ async function readFileAndPostToApi() {
 		const result = await response.json()
 
 		if (!result.success) {
-			error.value = result.error || "Failed to process MCM file"
+			const errorMsg = result.error || "Failed to process MCM file"
+			error.value = errorMsg
+			fontStore.setError(errorMsg)
 			return
 		}
 
-		// Store the result
-		mcmData.value = result.data
-
-		// You could emit an event or use Pinia/Vuex store to share this data
-		// For now, we'll emit an event
-		emit("mcmDataLoaded", result.data)
-		console.log(result.data)
+		// Store the result in the Pinia store
+		fontStore.setFontData(result.data)
+		console.log("Font data loaded:", result.data)
 	} catch (err) {
-		error.value = err instanceof Error ? err.message : "Unknown error occurred"
+		const errorMessage =
+			err instanceof Error ? err.message : "Unknown error occurred"
+		error.value = errorMessage
+		fontStore.setError(errorMessage)
 	} finally {
 		isLoading.value = false
 	}
 }
-
-const emit = defineEmits(["mcmDataLoaded"])
 </script>
 
 <template>
@@ -95,6 +101,9 @@ const emit = defineEmits(["mcmDataLoaded"])
 			<div v-if="error" class="text-red-500 ml-4">{{ error }}</div>
 			<div v-if="file && !error" class="text-green-500 ml-4">
 				Selected: {{ file.name }}
+			</div>
+			<div v-if="fontStore.hasData" class="text-blue-500 ml-4">
+				Loaded {{ fontStore.characterCount }} characters
 			</div>
 		</div>
 	</div>

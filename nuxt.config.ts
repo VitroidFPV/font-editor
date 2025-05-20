@@ -2,7 +2,13 @@
 export default defineNuxtConfig({
 	devtools: { enabled: true },
 
-	modules: ["@nuxt/ui", "@nuxt/eslint", "@nuxt/fonts", "@nuxt/icon"],
+	modules: [
+		"@nuxt/ui",
+		"@nuxt/eslint",
+		"@nuxt/fonts",
+		"@nuxt/icon",
+		"@pinia/nuxt"
+	],
 
 	css: ["~/assets/css/main.css"],
 
