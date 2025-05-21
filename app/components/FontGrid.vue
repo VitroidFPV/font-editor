@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useFontStore } from "~~/stores/fontStore"
+
+const fontStore = useFontStore()
+
 const props = defineProps({
 	showGrid: {
 		type: Boolean,
@@ -13,8 +17,17 @@ const props = defineProps({
 const showGrid = computed(() => props.showGrid)
 const showTooltip = computed(() => props.showTooltip)
 
+function getCharacterIndex(x: number, y: number, zeroBased: boolean = false) {
+	return (y - (zeroBased ? 0 : 1)) * 16 + (x - (zeroBased ? 0 : 1))
+}
+
 function handleCellClick(x: number, y: number) {
-	console.log(x, y)
+	// Calculate character index (16 characters per row)
+	const index = getCharacterIndex(x, y, true)
+
+	// Select the character in the font store
+	fontStore.selectedCharacterIndex = index
+	console.log(fontStore.selectedCharacterIndex)
 }
 </script>
 
@@ -32,7 +45,7 @@ function handleCellClick(x: number, y: number) {
 				<UTooltip
 					v-for="x in 16"
 					:key="'cell-' + x + '-' + y"
-					:text="`${(x - 1).toString(16).toUpperCase()}:${(y - 1).toString(16).toUpperCase()}`"
+					:text="`${getCharacterIndex(x, y, false).toString(16).toUpperCase()}`"
 					:ui="{
 						content: 'bg-primary-500'
 					}"

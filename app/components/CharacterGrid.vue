@@ -2,22 +2,11 @@
 import { useFontStore } from "../../stores/fontStore"
 import { computed } from "vue"
 
-// Props for the component
-const props = defineProps({
-	index: {
-		type: Number,
-		default: 3 // Default to character #3 if not specified
-	}
-})
-
 const fontStore = useFontStore()
 
-// Get the character at the specified index
+// Get the character from the store's selected index
 const character = computed(() => {
-	if (fontStore.hasData && fontStore.characters.length > props.index) {
-		return fontStore.characters[props.index]
-	}
-	return null
+	return fontStore.selectedCharacter
 })
 
 // Helper function to determine cell color based on pixel value
@@ -54,18 +43,7 @@ function toHex(value: number): string {
 		Please load an MCM file to display character data
 	</div>
 
-	<div
-		v-else-if="!character"
-		class="flex items-center justify-center h-64 text-neutral-400"
-	>
-		Character #{{ props.index }} (Hex: {{ toHex(props.index) }}) not found
-	</div>
-
 	<div v-else>
-		<h3 class="text-lg font-medium mb-2">
-			Character #{{ props.index }} (Hex: {{ toHex(props.index) }})
-		</h3>
-
 		<div class="grid-container">
 			<!-- Grid rows with cells -->
 			<template v-for="y in 18" :key="'row-' + y">
