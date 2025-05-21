@@ -23,7 +23,7 @@ function getCharacterIndex(x: number, y: number, zeroBased: boolean = false) {
 
 function handleCellClick(x: number, y: number) {
 	// Calculate character index (16 characters per row)
-	const index = getCharacterIndex(x, y, true)
+	const index = getCharacterIndex(x, y, false)
 
 	// Select the character in the font store
 	fontStore.selectedCharacterIndex = index
