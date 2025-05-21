@@ -59,6 +59,7 @@ async function readFileAndPostToApi() {
 		// Store the result in the Pinia store
 		fontStore.setFontData(result.data)
 		console.log("Font data loaded:", result.data)
+		console.log("Timing:", result.timing)
 	} catch (err) {
 		const errorMessage =
 			err instanceof Error ? err.message : "Unknown error occurred"
@@ -73,7 +74,7 @@ async function readFileAndPostToApi() {
 <template>
 	<div class="w-full">
 		<div
-			class="flex p-2 w-full items-center bg-neutral-950/30 rounded-lg h-full gap-2"
+			class="flex p-2 w-full items-center bg-neutral-900 rounded-lg h-full gap-2"
 		>
 			<div class="flex gap-4">
 				<UInput

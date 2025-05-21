@@ -1,73 +1,65 @@
 <script setup lang="ts">
-import { useFontStore } from "../../stores/fontStore"
-import CharacterCanvas from "./CharacterCanvas.vue"
+const props = defineProps({
+	showGrid: {
+		type: Boolean,
+		default: true
+	},
+	showTooltip: {
+		type: Boolean,
+		default: true
+	}
+})
 
-const fontStore = useFontStore()
+const showGrid = computed(() => props.showGrid)
+const showTooltip = computed(() => props.showTooltip)
 
-// Method to get character index from row and column
-function getCharacterIndex(row: number, col: number): number {
-	return row * 16 + col
-}
-
-// Format an integer as hex with uppercase letters and padding
-function toHex(value: number): string {
-	return value.toString(16).padStart(2, "0").toUpperCase()
+function handleCellClick(x: number, y: number) {
+	console.log(x, y)
 }
 </script>
 
 <template>
-	<div class="grid-container">
-		<!-- Header row (x-axis indices) -->
-		<div class="header-cell"></div>
-		<!-- Empty corner cell -->
-		<div
-			v-for="x in 16"
-			:key="'header-' + x"
-			class="font-mono text-xs text-neutral-600 flex items-end justify-center"
-		>
-			{{ (x - 1).toString(16).toUpperCase() }}
+	<div
+		:class="`relative border-2 border-neutral-800 ${showGrid ? '' : 'rounded-lg'}`"
+	>
+		<div class="absolute pointer-events-none w-full h-full z-10">
+			<FontGridCanvas />
 		</div>
-
-		<!-- Grid rows with y-axis labels and cells -->
-		<template v-for="y in 16" :key="'row-' + y">
-			<!-- Y axis label (hex) -->
-			<div
-				class="font-mono text-xs text-neutral-600 flex flex-col items-end justify-center"
-			>
-				{{ (y - 1).toString(16).toUpperCase() }}
-			</div>
-
-			<!-- Grid cells -->
-			<UTooltip
-				v-for="x in 16"
-				:key="'cell-' + x + '-' + y"
-				:text="toHex(getCharacterIndex(y - 1, x - 1))"
-			>
-				<div
-					class="grid-cell border border-neutral-800 hover:bg-neutral-700 cursor-pointer flex items-center justify-center"
+		<div class="grid-container z-50">
+			<!-- Grid rows with cells -->
+			<template v-for="y in 16" :key="'row-' + y">
+				<!-- Grid cells -->
+				<UTooltip
+					v-for="x in 16"
+					:key="'cell-' + x + '-' + y"
+					:text="`${(x - 1).toString(16).toUpperCase()}:${(y - 1).toString(16).toUpperCase()}`"
+					:ui="{
+						content: 'bg-primary-500'
+					}"
+					:delay-duration="50"
+					:disabled="!showTooltip"
 				>
-					<CharacterCanvas
-						v-if="fontStore.hasData"
-						:character-index="getCharacterIndex(y - 1, x - 1)"
-					/>
-					<span v-else class="text-xs text-neutral-400">
-						{{ toHex(getCharacterIndex(y - 1, x - 1)) }}
-					</span>
-				</div>
-			</UTooltip>
-		</template>
+					<button
+						:class="
+							'border transition-[border-color] duration-300 grid-cell bg-transparent hover:bg-primary-400/50 cursor-pointer flex items-center justify-center z-10 ' +
+							(showGrid ? ' border-neutral-500/20' : 'border-transparent')
+						"
+						@click="handleCellClick(x, y)"
+					></button>
+				</UTooltip>
+			</template>
+		</div>
 	</div>
 </template>
 
 <style scoped>
 .grid-container {
 	display: grid;
-	grid-template-columns: auto repeat(16, 1fr);
-	grid-template-rows: auto repeat(16, 1fr);
+	grid-template-columns: repeat(16, 1fr);
+	grid-template-rows: repeat(16, 1fr);
 	min-width: 100%;
 }
 
-.header-cell,
 .grid-cell {
 	aspect-ratio: 12/18;
 	min-width: 100%;
