@@ -36,46 +36,35 @@ function toHex(value: number): string {
 </script>
 
 <template>
-	<div
-		v-if="!fontStore.hasData"
-		class="flex items-center justify-center h-64 text-neutral-400"
-	>
-		Please load an MCM file to display character data
+	<div class="grid-container">
+		<!-- Grid rows with cells -->
+		<template v-for="y in 18" :key="'row-' + y">
+			<!-- Grid cells -->
+			<UTooltip
+				v-for="x in 12"
+				:key="'cell-' + x + '-' + y"
+				:text="'Position: ' + (x - 1) + ',' + (y - 1)"
+			>
+				<div
+					class="grid-cell border border-neutral-800 hover:bg-neutral-700/50 cursor-pointer flex items-center justify-center text-xs text-neutral-400"
+					:class="getCellStyle(getPixelValue(x - 1, y - 1))"
+				></div>
+			</UTooltip>
+		</template>
 	</div>
 
-	<div v-else>
-		<div class="grid-container">
-			<!-- Grid rows with cells -->
-			<template v-for="y in 18" :key="'row-' + y">
-				<!-- Grid cells -->
-				<UTooltip
-					v-for="x in 12"
-					:key="'cell-' + x + '-' + y"
-					:text="'Position: ' + (x - 1) + ',' + (y - 1)"
-				>
-					<div
-						class="grid-cell border border-neutral-800 hover:bg-neutral-700/50 cursor-pointer flex items-center justify-center text-xs text-neutral-400"
-						:class="getCellStyle(getPixelValue(x - 1, y - 1))"
-					></div>
-				</UTooltip>
-			</template>
+	<div class="mt-4 flex gap-2">
+		<div class="flex items-center">
+			<div class="w-4 h-4 bg-black mr-1"></div>
+			<span class="text-xs">Black (00)</span>
 		</div>
-
-		<div class="mt-4 flex gap-2">
-			<div class="flex items-center">
-				<div class="w-4 h-4 bg-black mr-1"></div>
-				<span class="text-xs">Black (00)</span>
-			</div>
-			<div class="flex items-center">
-				<div class="w-4 h-4 bg-white mr-1 border border-neutral-800"></div>
-				<span class="text-xs">White (10)</span>
-			</div>
-			<div class="flex items-center">
-				<div
-					class="w-4 h-4 bg-transparent mr-1 border border-neutral-800"
-				></div>
-				<span class="text-xs">Transparent (X1)</span>
-			</div>
+		<div class="flex items-center">
+			<div class="w-4 h-4 bg-white mr-1 border border-neutral-800"></div>
+			<span class="text-xs">White (10)</span>
+		</div>
+		<div class="flex items-center">
+			<div class="w-4 h-4 bg-transparent mr-1 border border-neutral-800"></div>
+			<span class="text-xs">Transparent (X1)</span>
 		</div>
 	</div>
 </template>

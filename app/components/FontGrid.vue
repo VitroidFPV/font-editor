@@ -22,6 +22,9 @@ function getCharacterIndex(x: number, y: number, zeroBased: boolean = false) {
 }
 
 function handleCellClick(x: number, y: number) {
+	// Only handle click if font data is loaded
+	if (!fontStore.hasData) return
+
 	// Calculate character index (16 characters per row)
 	const index = getCharacterIndex(x, y, false)
 
