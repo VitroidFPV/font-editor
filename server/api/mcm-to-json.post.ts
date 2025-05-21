@@ -123,6 +123,7 @@ function parseMcmToJson(mcmContent: string): McmData | null {
 
 export default defineEventHandler(async (event) => {
 	try {
+		const startTime = performance.now()
 		// Get the MCM content from the request body
 		const body = await readBody(event)
 
@@ -134,7 +135,11 @@ export default defineEventHandler(async (event) => {
 		}
 
 		const mcmContent = body.mcmContent
+
+		const parseStartTime = performance.now()
 		const mcmData = parseMcmToJson(mcmContent)
+		const parseEndTime = performance.now()
+		const parseTime = parseEndTime - parseStartTime
 
 		if (!mcmData) {
 			return {
@@ -143,10 +148,17 @@ export default defineEventHandler(async (event) => {
 			}
 		}
 
+		const endTime = performance.now()
+		const totalTime = endTime - startTime
+
 		// Return the parsed MCM data
 		return {
 			success: true,
-			data: mcmData
+			data: mcmData,
+			timing: {
+				totalTimeMs: totalTime,
+				parseTimeMs: parseTime
+			}
 		}
 	} catch (error) {
 		console.error("Error processing MCM to JSON conversion:", error)

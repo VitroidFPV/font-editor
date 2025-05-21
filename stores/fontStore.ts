@@ -13,6 +13,11 @@ interface McmData {
 	characters: McmCharacter[]
 }
 
+interface TimingInfo {
+	totalTimeMs: number
+	parseTimeMs: number
+}
+
 export const useFontStore = defineStore("font", {
 	state: () => ({
 		metadata: "",
@@ -20,7 +25,8 @@ export const useFontStore = defineStore("font", {
 		characters: [] as McmCharacter[],
 		isLoaded: false,
 		selectedCharacterIndex: -1,
-		error: null as string | null
+		error: null as string | null,
+		timing: null as TimingInfo | null
 	}),
 
 	getters: {
@@ -45,6 +51,10 @@ export const useFontStore = defineStore("font", {
 			this.error = null
 		},
 
+		setTiming(timing: TimingInfo) {
+			this.timing = timing
+		},
+
 		selectCharacter(index: number) {
 			if (index >= 0 && index < this.characters.length) {
 				this.selectedCharacterIndex = index
@@ -60,6 +70,7 @@ export const useFontStore = defineStore("font", {
 			this.isLoaded = false
 			this.selectedCharacterIndex = -1
 			this.error = null
+			this.timing = null
 		},
 
 		setError(message: string) {
