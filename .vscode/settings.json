@@ -10,5 +10,4 @@
 	"tailwindCSS.experimental.classRegex": [
 		["ui:\\s*{([^)]*)\\s*}", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
 	]
-
 }

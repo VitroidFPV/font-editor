@@ -1,8 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap');
 @import "tailwindcss";
 @import "@nuxt/ui";
 
 @theme static {
-  --font-sans: 'Public Sans', sans-serif;
+  --font-sans: 'Geist', sans-serif;
+  --font-mono: 'Geist Mono', monospace;
 
   --color-green-50: #effdf5;
   --color-green-100: #d9fbe8;
@@ -16,5 +18,7 @@
   --color-green-900: #0a5331;
   --color-green-950: #052e16;
 
-  --color-neutral-950: #111111;
+  /* --color-neutral-950: #111111; */
+  --color-zinc-950: oklch(16.1% 0.005 285.823);
+  --color-zinc-900: oklch(19% 0.006 285.885);
 }

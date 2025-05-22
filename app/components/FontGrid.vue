@@ -41,7 +41,7 @@ function handleCellClick(x: number, y: number) {
 		<div class="absolute pointer-events-none w-full h-full z-10">
 			<FontGridCanvas />
 		</div>
-		<div class="grid-container z-50">
+		<div class="z-50 h-full w-full grid grid-cols-16 grid-rows-16">
 			<!-- Grid rows with cells -->
 			<template v-for="y in 16" :key="'row-' + y">
 				<!-- Grid cells -->
@@ -50,7 +50,7 @@ function handleCellClick(x: number, y: number) {
 					:key="'cell-' + x + '-' + y"
 					:text="`${getCharacterIndex(x, y, false).toString(16).toUpperCase()}`"
 					:ui="{
-						content: 'bg-primary-500'
+						content: 'bg-primary-400'
 					}"
 					:delay-duration="50"
 					:disabled="!showTooltip"
@@ -69,13 +69,6 @@ function handleCellClick(x: number, y: number) {
 </template>
 
 <style scoped>
-.grid-container {
-	display: grid;
-	grid-template-columns: repeat(16, 1fr);
-	grid-template-rows: repeat(16, 1fr);
-	min-width: 100%;
-}
-
 .grid-cell {
 	aspect-ratio: 12/18;
 	min-width: 100%;

@@ -75,9 +75,7 @@ async function readFileAndPostToApi() {
 
 <template>
 	<div class="w-full">
-		<div
-			class="flex p-2 w-full items-center bg-neutral-900 rounded-lg h-full gap-2"
-		>
+		<div class="flex p-2 w-full items-center bg-neutral-900 rounded-lg gap-2">
 			<div class="flex gap-4">
 				<UInput
 					icon="i-lucide-folder-open"
@@ -102,10 +100,10 @@ async function readFileAndPostToApi() {
 				<UButton icon="i-lucide-save-all" variant="soft">Save As</UButton>
 			</div>
 			<div v-if="error" class="text-red-500 ml-4">{{ error }}</div>
-			<div v-if="file && !error" class="text-green-500 ml-4">
+			<div v-if="file && !error" class="text-lime-400 ml-4 font-mono text-xs">
 				Selected: {{ file.name }}
 			</div>
-			<div v-if="fontStore.hasData" class="text-blue-500 ml-4">
+			<div v-if="fontStore.hasData" class="text-sky-400 ml-4 font-mono text-xs">
 				Loaded {{ fontStore.characterCount }} characters
 			</div>
 		</div>
