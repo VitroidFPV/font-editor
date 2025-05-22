@@ -32,6 +32,10 @@ function handleCellClick(x: number, y: number) {
 	fontStore.selectedCharacterIndex = index
 	console.log(fontStore.selectedCharacterIndex)
 }
+
+function isSelected(x: number, y: number) {
+	return fontStore.selectedCharacterIndex === getCharacterIndex(x, y, false)
+}
 </script>
 
 <template>
@@ -56,10 +60,9 @@ function handleCellClick(x: number, y: number) {
 					:disabled="!showTooltip"
 				>
 					<button
-						:class="
-							'border transition-[border-color] duration-300 grid-cell bg-transparent hover:bg-primary-400/50 cursor-pointer flex items-center justify-center z-10 ' +
-							(showGrid ? ' border-neutral-500/20' : 'border-transparent')
-						"
+						:class="`border transition-[border-color] duration-300 grid-cell bg-transparent hover:bg-primary-400/50 
+						cursor-pointer flex items-center justify-center z-10 
+						${showGrid ? ' border-neutral-500/20' : 'border-transparent'} ${isSelected(x, y) ? 'bg-primary-400/50!' : ''}`"
 						@click="handleCellClick(x, y)"
 					></button>
 				</UTooltip>
