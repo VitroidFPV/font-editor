@@ -101,7 +101,7 @@ export const useHistoryStore = defineStore("history", () => {
 		// Apply all changes in the stroke in reverse order
 		// This ensures we undo from last action to first
 		for (let i = stroke.changes.length - 1; i >= 0; i--) {
-			const change = stroke.changes[i]
+			const change = stroke.changes[i] as PixelChange
 
 			// Apply the reverse change
 			fontStore.updatePixelSilent(
