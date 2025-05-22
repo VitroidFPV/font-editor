@@ -1,3 +1,14 @@
+<script setup lang="ts">
+useSeoMeta({
+	title: "OSD Font Editor",
+	description: "Edit MAX7456-compatible OSD fonts with ease in your browser",
+	ogTitle: "OSD Font Editor",
+	ogDescription: "Edit MAX7456-compatible OSD fonts with ease in your browser",
+	ogImage: "/favicon.svg",
+	themeColor: "#ff637e"
+})
+</script>
+
 <template>
 	<UApp>
 		<div
