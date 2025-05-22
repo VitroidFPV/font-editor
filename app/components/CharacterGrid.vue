@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { useFontStore } from "../../stores/fontStore"
+import { usePaletteStore } from "../../stores/paletteStore"
+import { useHistoryStore } from "../../stores/historyStore"
 import { computed } from "vue"
 
 const fontStore = useFontStore()
+const paletteStore = usePaletteStore()
+const historyStore = useHistoryStore()
 
 // Get the character from the store's selected index
 const character = computed(() => {
@@ -33,6 +37,45 @@ function getPixelValue(x: number, y: number): number | undefined {
 	return character.value?.pixels?.[y]?.[x]
 }
 
+// Handle left click (paint with selected color)
+function handleLeftClick(x: number, y: number) {
+	const result = fontStore.updatePixel(x, y, paletteStore.selectedColor)
+	if (result) {
+		historyStore.recordChange({
+			characterIndex: fontStore.selectedCharacterIndex,
+			x,
+			y,
+			oldValue: result.oldValue,
+			newValue: result.newValue
+		})
+	}
+}
+
+// Handle right click (set to transparent)
+function handleRightClick(x: number, y: number) {
+	const result = fontStore.updatePixel(x, y, 1) // 1 = transparent
+	if (result) {
+		historyStore.recordChange({
+			characterIndex: fontStore.selectedCharacterIndex,
+			x,
+			y,
+			oldValue: result.oldValue,
+			newValue: result.newValue
+		})
+	}
+	return false // Prevent context menu
+}
+
+// Define keyboard shortcuts using Nuxt's defineShortcuts
+defineShortcuts({
+	// Undo with Ctrl+Z
+	ctrl_z: () => historyStore.undo(),
+	// Redo with Ctrl+Y
+	ctrl_y: () => historyStore.redo(),
+	// Redo with Ctrl+Shift+Z
+	ctrl_shift_z: () => historyStore.redo()
+})
+
 // Format an integer as hex with uppercase letters
 function toHex(value: number): string {
 	return value.toString(16).toUpperCase()
@@ -60,6 +103,36 @@ const showBackground = computed(() => props.showBackground)
 
 <template>
 	<div :class="`grid-container ${showBackground ? 'bg-neutral-900' : ''}`">
+		<!-- Undo/Redo Controls -->
+		<div class="undo-redo-controls">
+			<UButton
+				:disabled="!historyStore.canUndo"
+				icon="i-heroicons-arrow-uturn-left"
+				color="neutral"
+				variant="subtle"
+				size="sm"
+				class="rounded-full"
+				:tooltip="{
+					text: 'Undo (Ctrl+Z)',
+					disabled: !historyStore.canUndo
+				}"
+				@click="historyStore.undo()"
+			/>
+			<UButton
+				:disabled="!historyStore.canRedo"
+				icon="i-heroicons-arrow-uturn-right"
+				color="neutral"
+				variant="subtle"
+				size="sm"
+				class="rounded-full"
+				:tooltip="{
+					text: 'Redo (Ctrl+Y)',
+					disabled: !historyStore.canRedo
+				}"
+				@click="historyStore.redo()"
+			/>
+		</div>
+
 		<!-- Grid rows with cells -->
 		<template v-for="y in 18" :key="'row-' + y">
 			<!-- Grid cells -->
@@ -72,6 +145,8 @@ const showBackground = computed(() => props.showBackground)
 				<div
 					:class="`grid-cell border ${showGrid ? 'border-neutral-800' : 'border-transparent'} cursor-pointer flex items-center justify-center text-xs 
 					text-neutral-400 ${getCellStyle(getPixelValue(x - 1, y - 1))}`"
+					@click="handleLeftClick(x - 1, y - 1)"
+					@contextmenu.prevent="handleRightClick(x - 1, y - 1)"
 				></div>
 			</UTooltip>
 		</template>
@@ -84,10 +159,20 @@ const showBackground = computed(() => props.showBackground)
 	grid-template-columns: repeat(12, 1fr);
 	grid-template-rows: repeat(18, 1fr);
 	width: fit-content;
+	position: relative;
 }
 
 .grid-cell {
 	aspect-ratio: 1/1;
 	width: 32px;
+}
+
+.undo-redo-controls {
+	position: absolute;
+	top: -40px;
+	right: 0;
+	display: flex;
+	gap: 8px;
+	z-index: 10;
 }
 </style>

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useFontStore } from "~~/stores/fontStore"
+import { usePaletteStore } from "~~/stores/paletteStore"
 
 const fontStore = useFontStore()
+const paletteStore = usePaletteStore()
 
 const showGrid = ref(true)
 const showTooltip = ref(true)
@@ -33,6 +35,9 @@ const handleScroll = (event: Event) => {
 					<USwitch v-model="showTooltip" label="Show Tooltip" />
 				</div>
 				<FontGrid :show-grid="showGrid" :show-tooltip="showTooltip" />
+				<div class="mt-4">
+					<FontExporter />
+				</div>
 			</template>
 			<div
 				v-else
@@ -69,6 +74,39 @@ const handleScroll = (event: Event) => {
 					:show-background="true"
 					:show-tooltip="showTooltip"
 				/>
+				<div class="flex gap-2">
+					<UButton
+						:color="paletteStore.selectedColor === 0 ? 'primary' : 'neutral'"
+						:variant="paletteStore.selectedColor === 0 ? 'solid' : 'soft'"
+						:ui="{ base: 'p-0.5' }"
+						@click="paletteStore.selectedColor = 0"
+					>
+						<div class="aspect-square w-8 bg-black rounded-sm"></div>
+					</UButton>
+					<UButton
+						:color="paletteStore.selectedColor === 2 ? 'primary' : 'neutral'"
+						:variant="paletteStore.selectedColor === 2 ? 'solid' : 'soft'"
+						:ui="{ base: 'p-0.5' }"
+						@click="paletteStore.selectedColor = 2"
+					>
+						<div class="aspect-square w-8 bg-white rounded-sm"></div>
+					</UButton>
+					<UButton
+						:color="paletteStore.selectedColor === 3 ? 'primary' : 'neutral'"
+						:variant="paletteStore.selectedColor === 3 ? 'solid' : 'soft'"
+						:ui="{ base: 'p-0.5' }"
+						@click="paletteStore.selectedColor = 3"
+					>
+						<div class="aspect-square w-8 bg-neutral-400 rounded-sm"></div>
+					</UButton>
+				</div>
+				<p class="text-neutral-400 text-sm">
+					Select a color to paint pixels.
+					<br />
+					Left-click on a pixel to change its color.
+					<br />
+					Right-click on a pixel to clear it (set to transparent).
+				</p>
 			</template>
 			<div
 				v-else
