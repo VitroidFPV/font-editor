@@ -17,7 +17,7 @@ interface McmData {
  * Parses MCM font data into a JSON structure
  * MCM files contain font data for MAX7456 on-screen displays
  * Each character is a 12x18 pixel grid where each pixel is represented by 2 bits
- * 00 = black, 10 = white, X1 = transparent (X can be 0 or 1)
+ * 00 = black, 10 = white, 11 = gray, 01 = transparent
  *
  * @param mcmContent String content of the MCM file
  * @returns The parsed data or null if parsing failed

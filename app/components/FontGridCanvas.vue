@@ -36,16 +36,22 @@ function renderFontGrid() {
 						for (let x = 0; x < character.width; x++) {
 							const pixelValue = character.pixels[y]?.[x]
 
-							// Set pixel color based on value (similar to CharacterGrid.vue logic)
+							// Set pixel color based on value
 							if (pixelValue === 0) {
 								// Black
 								ctx.fillStyle = "#000000"
+							} else if (pixelValue === 1) {
+								// Transparent (01)
+								continue // Skip transparent pixels
 							} else if (pixelValue === 2) {
 								// White
 								ctx.fillStyle = "#FFFFFF"
+							} else if (pixelValue === 3) {
+								// Gray
+								ctx.fillStyle = "#9CA3AF" // Tailwind neutral-400 equivalent
 							} else {
-								// Transparent (1 or 3)
-								continue // Skip transparent pixels
+								// Default for any unknown values
+								continue
 							}
 
 							// Calculate position on canvas

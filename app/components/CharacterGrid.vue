@@ -13,13 +13,17 @@ const character = computed(() => {
 function getCellStyle(pixelValue: number | undefined) {
 	if (pixelValue === undefined) return "bg-transparent"
 
-	// 00 (0) = black, 10 (2) = white, X1 (1 or 3) = transparent
+	// 00 (0) = black, 10 (2) = white, 11 (3) = gray, 01 (1) = transparent
 	switch (pixelValue) {
 		case 0: // Black
 			return "bg-black"
+		case 1: // Transparent
+			return "bg-transparent"
 		case 2: // White
 			return "bg-white"
-		default: // Transparent (1 or 3)
+		case 3: // Gray
+			return "bg-neutral-400"
+		default:
 			return "bg-transparent"
 	}
 }
@@ -63,8 +67,12 @@ function toHex(value: number): string {
 			<span class="text-xs">White (10)</span>
 		</div>
 		<div class="flex items-center">
+			<div class="w-4 h-4 bg-neutral-400 mr-1 border border-neutral-800"></div>
+			<span class="text-xs">Gray (11)</span>
+		</div>
+		<div class="flex items-center">
 			<div class="w-4 h-4 bg-transparent mr-1 border border-neutral-800"></div>
-			<span class="text-xs">Transparent (X1)</span>
+			<span class="text-xs">Transparent (01)</span>
 		</div>
 	</div>
 </template>
