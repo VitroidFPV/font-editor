@@ -16,13 +16,13 @@ function getCellStyle(pixelValue: number | undefined) {
 	// 00 (0) = black, 10 (2) = white, 11 (3) = gray, 01 (1) = transparent
 	switch (pixelValue) {
 		case 0: // Black
-			return "bg-black"
+			return "bg-black hover:bg-neutral-900"
 		case 1: // Transparent
 			return "bg-transparent"
 		case 2: // White
-			return "bg-white"
+			return "bg-white hover:bg-neutral-200"
 		case 3: // Gray
-			return "bg-neutral-400"
+			return "bg-neutral-400 hover:bg-neutral-500"
 		default:
 			return "bg-transparent"
 	}
@@ -37,10 +37,29 @@ function getPixelValue(x: number, y: number): number | undefined {
 function toHex(value: number): string {
 	return value.toString(16).toUpperCase()
 }
+
+const props = defineProps({
+	showTooltip: {
+		type: Boolean,
+		default: true
+	},
+	showGrid: {
+		type: Boolean,
+		default: true
+	},
+	showBackground: {
+		type: Boolean,
+		default: false
+	}
+})
+
+const showTooltip = computed(() => props.showTooltip)
+const showGrid = computed(() => props.showGrid)
+const showBackground = computed(() => props.showBackground)
 </script>
 
 <template>
-	<div class="grid-container">
+	<div :class="`grid-container ${showBackground ? 'bg-neutral-900' : ''}`">
 		<!-- Grid rows with cells -->
 		<template v-for="y in 18" :key="'row-' + y">
 			<!-- Grid cells -->
@@ -48,32 +67,14 @@ function toHex(value: number): string {
 				v-for="x in 12"
 				:key="'cell-' + x + '-' + y"
 				:text="'Position: ' + (x - 1) + ',' + (y - 1)"
+				:disabled="!showTooltip"
 			>
 				<div
-					class="grid-cell border border-neutral-800 hover:bg-neutral-700/50 cursor-pointer flex items-center justify-center text-xs text-neutral-400"
-					:class="getCellStyle(getPixelValue(x - 1, y - 1))"
+					:class="`grid-cell border ${showGrid ? 'border-neutral-800' : 'border-transparent'} cursor-pointer flex items-center justify-center text-xs 
+					text-neutral-400 ${getCellStyle(getPixelValue(x - 1, y - 1))}`"
 				></div>
 			</UTooltip>
 		</template>
-	</div>
-
-	<div class="mt-4 flex gap-2">
-		<div class="flex items-center">
-			<div class="w-4 h-4 bg-black mr-1"></div>
-			<span class="text-xs">Black (00)</span>
-		</div>
-		<div class="flex items-center">
-			<div class="w-4 h-4 bg-white mr-1 border border-neutral-800"></div>
-			<span class="text-xs">White (10)</span>
-		</div>
-		<div class="flex items-center">
-			<div class="w-4 h-4 bg-neutral-400 mr-1 border border-neutral-800"></div>
-			<span class="text-xs">Gray (11)</span>
-		</div>
-		<div class="flex items-center">
-			<div class="w-4 h-4 bg-transparent mr-1 border border-neutral-800"></div>
-			<span class="text-xs">Transparent (01)</span>
-		</div>
 	</div>
 </template>
 

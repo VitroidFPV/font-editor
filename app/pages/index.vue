@@ -64,7 +64,11 @@ const handleScroll = (event: Event) => {
 						</span>
 					</div>
 				</div>
-				<CharacterGrid />
+				<CharacterGrid
+					:show-grid="showGrid"
+					:show-background="true"
+					:show-tooltip="showTooltip"
+				/>
 			</template>
 			<div
 				v-else
