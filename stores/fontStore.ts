@@ -24,7 +24,7 @@ export const useFontStore = defineStore("font", {
 		characterCount: 0,
 		characters: [] as McmCharacter[],
 		isLoaded: false,
-		selectedCharacterIndex: -1,
+		selectedCharacterIndex: 1,
 		error: null as string | null,
 		timing: null as TimingInfo | null
 	}),
