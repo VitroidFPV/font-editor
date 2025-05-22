@@ -70,12 +70,13 @@ async function exportToMcm() {
 </script>
 
 <template>
-	<div>
+	<div class="flex gap-2">
 		<UButton
 			:loading="isExporting"
 			:disabled="!fontStore.hasData || isExporting"
 			color="primary"
 			icon="i-heroicons-arrow-down-tray"
+			variant="soft"
 			@click="exportToMcm"
 		>
 			Export MCM

@@ -88,6 +88,7 @@ async function readFileAndPostToApi() {
 					}"
 					@change="handleFileChange"
 				/>
+
 				<UButton
 					icon="i-lucide-book-check"
 					variant="solid"
@@ -97,7 +98,11 @@ async function readFileAndPostToApi() {
 				>
 					Read
 				</UButton>
-				<UButton icon="i-lucide-save-all" variant="soft">Save As</UButton>
+
+				<!-- Export button when font data is loaded -->
+				<template v-if="fontStore.hasData">
+					<FontExporter />
+				</template>
 			</div>
 			<div v-if="error" class="text-red-500 ml-4">{{ error }}</div>
 			<div v-if="file && !error" class="text-lime-400 ml-4 font-mono text-xs">

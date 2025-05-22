@@ -35,9 +35,6 @@ const handleScroll = (event: Event) => {
 					<USwitch v-model="showTooltip" label="Show Tooltip" />
 				</div>
 				<FontGrid :show-grid="showGrid" :show-tooltip="showTooltip" />
-				<div class="mt-4">
-					<FontExporter />
-				</div>
 			</template>
 			<div
 				v-else
