@@ -24,9 +24,9 @@ const handleScroll = (event: Event) => {
 </script>
 
 <template>
-	<div class="grid grid-cols-6 gap-4 h-full w-full">
+	<div class="grid grid-cols-6 gap-4 h-full w-full overflow-y-auto">
 		<div
-			class="bg-neutral-900 rounded-lg p-6 flex flex-col gap-4 col-span-6 md:col-span-3 xl:col-span-2 overflow-y-auto max-h-[calc(100vh-5.5rem)]"
+			class="bg-neutral-900 rounded-lg p-6 flex flex-col gap-4 col-span-6 md:col-span-3 xl:col-span-2"
 		>
 			<h2 class="text-2xl font-bold text-primary-400">Font Preview</h2>
 			<template v-if="fontStore.hasData">

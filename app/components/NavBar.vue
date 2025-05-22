@@ -75,7 +75,9 @@ async function readFileAndPostToApi() {
 
 <template>
 	<div class="w-full">
-		<div class="flex p-2 w-full items-center bg-neutral-900 rounded-lg gap-2">
+		<div
+			class="flex p-2 w-full flex-wrap items-center bg-neutral-900 rounded-lg gap-2"
+		>
 			<div class="flex gap-4">
 				<UInput
 					icon="i-lucide-folder-open"
