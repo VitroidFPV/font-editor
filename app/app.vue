@@ -5,7 +5,9 @@ useSeoMeta({
 	ogTitle: "OSD Font Editor",
 	ogDescription: "Edit MAX7456-compatible OSD fonts with ease in your browser",
 	ogImage: "/favicon.svg",
-	themeColor: "#ff637e"
+	themeColor: "#ff637e",
+	author: "VitroidFPV",
+	keywords: "OSD, Font, Editor, MAX7456, OSD Font Editor"
 })
 </script>
 
