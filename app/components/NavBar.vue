@@ -15,6 +15,7 @@ function handleFileChange(event: Event) {
 		file.value = input.files[0] as File
 		// Clear any previous errors when selecting a new file
 		error.value = null
+		console.log("📂 File selected:", file.value)
 	}
 }
 
@@ -35,6 +36,7 @@ async function readFileAndPostToApi() {
 	isLoading.value = true
 
 	try {
+		console.log("📂 Begin parsing file")
 		// Read the file content
 		const fileContent = await file.value.text()
 
@@ -55,11 +57,11 @@ async function readFileAndPostToApi() {
 			fontStore.setError(errorMsg)
 			return
 		}
-
+		console.log("📂 File parsed successfully")
 		// Store the result in the Pinia store
 		fontStore.setFontData(result.data)
-		console.log("Font data loaded:", result.data)
-		console.log("Timing:", result.timing)
+		console.log("📄 Font data loaded:", result.data)
+		console.log("⏱️ Timing:", result.timing)
 	} catch (err) {
 		const errorMessage =
 			err instanceof Error ? err.message : "Unknown error occurred"
