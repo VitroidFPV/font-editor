@@ -2,11 +2,16 @@
 import { useFontStore } from "../../stores/fontStore"
 import { usePaletteStore } from "../../stores/paletteStore"
 import { useHistoryStore } from "../../stores/historyStore"
-import { computed } from "vue"
+import { computed, ref } from "vue"
 
 const fontStore = useFontStore()
 const paletteStore = usePaletteStore()
 const historyStore = useHistoryStore()
+
+// Drag painting state
+const isDragging = ref(false)
+const isRightClick = ref(false)
+const lastPaintedCoords = ref<{ x: number; y: number } | null>(null)
 
 // Get the character from the store's selected index
 const character = computed(() => {
@@ -49,6 +54,9 @@ function handleLeftClick(x: number, y: number) {
 			newValue: result.newValue
 		})
 	}
+
+	// Update last painted coordinates
+	lastPaintedCoords.value = { x, y }
 }
 
 // Handle right click (set to transparent)
@@ -63,7 +71,54 @@ function handleRightClick(x: number, y: number) {
 			newValue: result.newValue
 		})
 	}
+
+	// Update last painted coordinates
+	lastPaintedCoords.value = { x, y }
+
 	return false // Prevent context menu
+}
+
+// Start drag painting
+function startDrag(event: MouseEvent, x: number, y: number) {
+	isDragging.value = true
+	isRightClick.value = event.button === 2
+
+	// Begin recording a stroke
+	historyStore.beginStroke()
+
+	// Paint the initial pixel
+	if (isRightClick.value) {
+		handleRightClick(x, y)
+	} else {
+		handleLeftClick(x, y)
+	}
+}
+
+// Continue drag painting
+function continueDrag(x: number, y: number) {
+	// Only process if we're dragging and the coords are different from last painted
+	if (!isDragging.value) return
+	if (lastPaintedCoords.value?.x === x && lastPaintedCoords.value?.y === y)
+		return
+
+	// Paint based on which mouse button is held
+	if (isRightClick.value) {
+		handleRightClick(x, y)
+	} else {
+		handleLeftClick(x, y)
+	}
+}
+
+// End drag painting
+function endDrag() {
+	if (isDragging.value) {
+		// Finish recording the stroke
+		historyStore.endStroke()
+
+		isDragging.value = false
+		isRightClick.value = false
+		lastPaintedCoords.value = null
+	}
 }
 
 // Define keyboard shortcuts using Nuxt's defineShortcuts
@@ -102,7 +157,11 @@ const showBackground = computed(() => props.showBackground)
 </script>
 
 <template>
-	<div :class="`grid-container ${showBackground ? 'bg-neutral-900' : ''}`">
+	<div
+		:class="`grid-container ${showBackground ? 'bg-neutral-900' : ''}`"
+		@mouseup="endDrag"
+		@mouseleave="endDrag"
+	>
 		<!-- Undo/Redo Controls -->
 		<div class="undo-redo-controls">
 			<UButton
@@ -145,8 +204,9 @@ const showBackground = computed(() => props.showBackground)
 				<div
 					:class="`grid-cell border ${showGrid ? 'border-neutral-800' : 'border-transparent'} cursor-pointer flex items-center justify-center text-xs 
 					text-neutral-400 ${getCellStyle(getPixelValue(x - 1, y - 1))}`"
-					@click="handleLeftClick(x - 1, y - 1)"
-					@contextmenu.prevent="handleRightClick(x - 1, y - 1)"
+					@mousedown="startDrag($event, x - 1, y - 1)"
+					@mousemove="continueDrag(x - 1, y - 1)"
+					@contextmenu.prevent
 				></div>
 			</UTooltip>
 		</template>
