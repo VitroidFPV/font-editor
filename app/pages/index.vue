@@ -97,12 +97,17 @@ const handleScroll = (event: Event) => {
 						<div class="aspect-square w-8 bg-neutral-400 rounded-sm"></div>
 					</UButton>
 				</div>
-				<p class="text-neutral-400 text-sm">
+				<p class="text-text text-sm space-y-2">
 					Select a color to paint pixels.
 					<br />
 					Left-click on a pixel to change its color.
 					<br />
 					Right-click on a pixel to clear it (set to transparent).
+					<br />
+					<span class="text-xs text-dimmed">
+						Gray pixels are only visible when using specific OSD renderers. They
+						will show as transparent in other renderers.
+					</span>
 				</p>
 			</template>
 			<div
