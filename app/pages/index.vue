@@ -5,6 +5,20 @@ const fontStore = useFontStore()
 
 const showGrid = ref(true)
 const showTooltip = ref(true)
+
+const handleScroll = (event: Event) => {
+	// Prevent default scroll behavior
+	event.preventDefault()
+
+	// Get scroll direction and update index accordingly
+	if (event instanceof WheelEvent) {
+		if (event.deltaY > 0 && fontStore.selectedCharacterIndex > 0) {
+			fontStore.selectedCharacterIndex--
+		} else if (event.deltaY < 0 && fontStore.selectedCharacterIndex < 255) {
+			fontStore.selectedCharacterIndex++
+		}
+	}
+}
 </script>
 
 <template>
@@ -42,6 +56,7 @@ const showTooltip = ref(true)
 							:ui="{
 								base: 'w-20'
 							}"
+							@wheel="handleScroll"
 						/>
 						<span class="text-neutral-400 font-mono text-xs">
 							(Hex:
