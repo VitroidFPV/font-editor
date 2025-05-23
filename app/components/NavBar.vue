@@ -76,42 +76,65 @@ async function readFileAndPostToApi() {
 <template>
 	<div class="w-full">
 		<div
-			class="flex p-2 w-full flex-wrap items-center bg-neutral-900 rounded-lg gap-2"
+			class="flex p-2 w-full flex-wrap items-center justify-between bg-neutral-900 rounded-lg gap-2"
 		>
-			<div class="flex gap-4">
-				<UInput
-					icon="i-lucide-folder-open"
-					variant="soft"
-					type="file"
-					accept=".mcm"
-					:ui="{
-						base: 'file:mr-2 file:bg-primary-400 file:cursor-pointer file:text-inverted file:py-1 file:px-2 file:rounded-md',
-						leadingIcon: 'text-primary-400'
-					}"
-					@change="handleFileChange"
-				/>
-
-				<UButton
-					icon="i-lucide-book-check"
-					variant="solid"
-					:loading="isLoading"
-					:disabled="!file || isLoading"
-					@click="readFileAndPostToApi"
+			<div class="flex gap-2 items-center">
+				<div class="flex gap-4">
+					<UInput
+						icon="i-lucide-folder-open"
+						variant="soft"
+						type="file"
+						accept=".mcm"
+						:ui="{
+							base: 'file:mr-2 file:bg-primary-400 file:cursor-pointer file:text-inverted file:py-1 file:px-2 file:rounded-md',
+							leadingIcon: 'text-primary-400'
+						}"
+						@change="handleFileChange"
+					/>
+					<UButton
+						icon="i-lucide-book-check"
+						variant="solid"
+						:loading="isLoading"
+						:disabled="!file || isLoading"
+						@click="readFileAndPostToApi"
+					>
+						Read
+					</UButton>
+					<!-- Export button when font data is loaded -->
+					<template v-if="fontStore.hasData">
+						<FontExporter />
+					</template>
+				</div>
+				<div v-if="error" class="text-red-500 ml-4">{{ error }}</div>
+				<div v-if="file && !error" class="text-lime-400 ml-4 font-mono text-xs">
+					Selected: {{ file.name }}
+				</div>
+				<div
+					v-if="fontStore.hasData"
+					class="text-sky-400 ml-4 font-mono text-xs"
 				>
-					Read
+					Loaded {{ fontStore.characterCount }} characters
+				</div>
+			</div>
+			<div class="flex gap-2 items-center">
+				<UButton
+					icon="i-lucide-heart-plus"
+					variant="soft"
+					to="https://ko-fi.com/vitroid"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					Support
 				</UButton>
-
-				<!-- Export button when font data is loaded -->
-				<template v-if="fontStore.hasData">
-					<FontExporter />
-				</template>
-			</div>
-			<div v-if="error" class="text-red-500 ml-4">{{ error }}</div>
-			<div v-if="file && !error" class="text-lime-400 ml-4 font-mono text-xs">
-				Selected: {{ file.name }}
-			</div>
-			<div v-if="fontStore.hasData" class="text-sky-400 ml-4 font-mono text-xs">
-				Loaded {{ fontStore.characterCount }} characters
+				<UButton
+					icon="i-lucide-github"
+					variant="soft"
+					to="https://github.com/VitroidFPV/font-editor"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					Source
+				</UButton>
 			</div>
 		</div>
 	</div>
