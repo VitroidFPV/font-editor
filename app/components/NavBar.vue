@@ -79,7 +79,7 @@ async function readFileAndPostToApi() {
 			class="flex p-2 w-full flex-wrap items-center justify-between bg-neutral-900 rounded-lg gap-2"
 		>
 			<div class="flex gap-2 items-center">
-				<div class="flex gap-4">
+				<div class="flex gap-4 items-center">
 					<UInput
 						icon="i-lucide-folder-open"
 						variant="soft"
@@ -100,20 +100,24 @@ async function readFileAndPostToApi() {
 					>
 						Read
 					</UButton>
+
 					<!-- Export button when font data is loaded -->
 					<template v-if="fontStore.hasData">
 						<FontExporter />
 					</template>
-				</div>
-				<div v-if="error" class="text-red-500 ml-4">{{ error }}</div>
-				<div v-if="file && !error" class="text-lime-400 ml-4 font-mono text-xs">
-					Selected: {{ file.name }}
-				</div>
-				<div
-					v-if="fontStore.hasData"
-					class="text-sky-400 ml-4 font-mono text-xs"
-				>
-					Loaded {{ fontStore.characterCount }} characters
+
+					<div class="flex flex-col">
+						<div v-if="error" class="text-red-500">{{ error }}</div>
+						<div v-if="file && !error" class="text-lime-400 font-mono text-xs">
+							Selected: {{ file.name }}
+						</div>
+						<div
+							v-if="fontStore.hasData"
+							class="text-sky-400 font-mono text-xs"
+						>
+							Loaded {{ fontStore.characterCount }} characters
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="flex gap-2 items-center">
