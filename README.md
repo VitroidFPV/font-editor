@@ -10,6 +10,7 @@ A web-based tool for editing MAX7456-compatible OSD (On-Screen Display) fonts us
 - **Multi-Color Support**: Edit with black, white, and gray pixels (with transparency)
 - **Grid & Tooltip Options**: Customize your editing experience with visual aids
 - **Export to MCM**: Save your edited font back to MCM format for use in OSD systems
+- **Export to C Header**: Export your edited font as a C header file for use in your project
 
 ## Getting Started
 
