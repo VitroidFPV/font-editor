@@ -30,15 +30,11 @@ A web-based tool for editing MAX7456-compatible OSD (On-Screen Display) fonts us
 2. Install dependencies:
    ```bash
    npm install
-   # or
-   yarn install
    ```
 
 3. Start the development server:
    ```bash
    npm run dev
-   # or
-   yarn dev
    ```
 
 4. Open your browser and navigate to `http://localhost:3000`
