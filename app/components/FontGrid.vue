@@ -11,11 +11,16 @@ const props = defineProps({
 	showTooltip: {
 		type: Boolean,
 		default: true
+	},
+	showBackground: {
+		type: Boolean,
+		default: true
 	}
 })
 
 const showGrid = computed(() => props.showGrid)
 const showTooltip = computed(() => props.showTooltip)
+const showBackground = computed(() => props.showBackground)
 
 function getCharacterIndex(x: number, y: number, zeroBased: boolean = false) {
 	return (y - (zeroBased ? 0 : 1)) * 16 + (x - (zeroBased ? 0 : 1))
@@ -40,7 +45,8 @@ function isSelected(x: number, y: number) {
 
 <template>
 	<div
-		:class="`relative border-2 border-neutral-800 ${showGrid ? '' : 'rounded-lg'}`"
+		:class="`relative border-2 border-neutral-800 transition-all duration-300 overflow-clip 
+		${showGrid ? 'rounded-none' : 'rounded-lg'} ${showBackground ? 'bg-neutral-700/30' : ''}`"
 	>
 		<div class="absolute pointer-events-none w-full h-full z-10">
 			<FontGridCanvas />

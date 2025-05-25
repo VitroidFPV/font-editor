@@ -147,7 +147,7 @@ const props = defineProps({
 	},
 	showBackground: {
 		type: Boolean,
-		default: false
+		default: true
 	}
 })
 
@@ -158,39 +158,12 @@ const showBackground = computed(() => props.showBackground)
 
 <template>
 	<div
-		:class="`grid-container ${showBackground ? 'bg-neutral-900' : ''}`"
+		:class="`grid grid-cols-12 grid-rows-18 w-fit relative transition-all duration-300 border-2 border-neutral-800 
+		rounded-lg overflow-clip ${showBackground ? 'bg-neutral-700/30' : ''} ${showGrid ? 'rounded-none' : 'rounded-lg'}`"
 		@mouseup="endDrag"
 		@mouseleave="endDrag"
 	>
 		<!-- Undo/Redo Controls -->
-		<div class="undo-redo-controls">
-			<UButton
-				:disabled="!historyStore.canUndo"
-				icon="i-heroicons-arrow-uturn-left"
-				color="neutral"
-				variant="subtle"
-				size="sm"
-				class="rounded-full"
-				:tooltip="{
-					text: 'Undo (Ctrl+Z)',
-					disabled: !historyStore.canUndo
-				}"
-				@click="historyStore.undo()"
-			/>
-			<UButton
-				:disabled="!historyStore.canRedo"
-				icon="i-heroicons-arrow-uturn-right"
-				color="neutral"
-				variant="subtle"
-				size="sm"
-				class="rounded-full"
-				:tooltip="{
-					text: 'Redo (Ctrl+Y)',
-					disabled: !historyStore.canRedo
-				}"
-				@click="historyStore.redo()"
-			/>
-		</div>
 
 		<!-- Grid rows with cells -->
 		<template v-for="y in 18" :key="'row-' + y">
@@ -202,7 +175,7 @@ const showBackground = computed(() => props.showBackground)
 				:disabled="!showTooltip"
 			>
 				<div
-					:class="`grid-cell border ${showGrid ? 'border-neutral-800' : 'border-transparent'} cursor-pointer flex items-center justify-center text-xs 
+					:class="`aspect-square w-8 border ${showGrid ? 'border-neutral-800' : 'border-transparent'} cursor-pointer flex items-center justify-center text-xs 
 					text-neutral-400 ${getCellStyle(getPixelValue(x - 1, y - 1))}`"
 					@mousedown="startDrag($event, x - 1, y - 1)"
 					@mousemove="continueDrag(x - 1, y - 1)"
@@ -212,27 +185,3 @@ const showBackground = computed(() => props.showBackground)
 		</template>
 	</div>
 </template>
-
-<style scoped>
-.grid-container {
-	display: grid;
-	grid-template-columns: repeat(12, 1fr);
-	grid-template-rows: repeat(18, 1fr);
-	width: fit-content;
-	position: relative;
-}
-
-.grid-cell {
-	aspect-ratio: 1/1;
-	width: 32px;
-}
-
-.undo-redo-controls {
-	position: absolute;
-	top: -40px;
-	right: 0;
-	display: flex;
-	gap: 8px;
-	z-index: 10;
-}
-</style>

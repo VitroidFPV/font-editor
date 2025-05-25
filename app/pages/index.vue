@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { useFontStore } from "~~/stores/fontStore"
 import { usePaletteStore } from "~~/stores/paletteStore"
+import { useHistoryStore } from "~~/stores/historyStore"
 
 const fontStore = useFontStore()
 const paletteStore = usePaletteStore()
+const historyStore = useHistoryStore()
 
 const showGrid = ref(true)
 const showTooltip = ref(true)
-
+const showBackground = ref(true)
 const handleScroll = (event: Event) => {
 	// Prevent default scroll behavior
 	event.preventDefault()
@@ -30,11 +32,16 @@ const handleScroll = (event: Event) => {
 		>
 			<h2 class="text-2xl font-bold text-primary-400">Font Preview</h2>
 			<template v-if="fontStore.hasData">
-				<div class="flex gap-6">
+				<div class="flex gap-4 flex-wrap py-1.5">
 					<USwitch v-model="showGrid" label="Show Grid" />
 					<USwitch v-model="showTooltip" label="Show Tooltip" />
+					<USwitch v-model="showBackground" label="Show Background" />
 				</div>
-				<FontGrid :show-grid="showGrid" :show-tooltip="showTooltip" />
+				<FontGrid
+					:show-grid="showGrid"
+					:show-tooltip="showTooltip"
+					:show-background="showBackground"
+				/>
 			</template>
 			<div
 				v-else
@@ -66,38 +73,76 @@ const handleScroll = (event: Event) => {
 						</span>
 					</div>
 				</div>
-				<CharacterGrid
-					:show-grid="showGrid"
-					:show-background="true"
-					:show-tooltip="showTooltip"
-				/>
-				<div class="flex gap-2">
-					<UButton
-						:color="paletteStore.selectedColor === 0 ? 'primary' : 'neutral'"
-						:variant="paletteStore.selectedColor === 0 ? 'solid' : 'soft'"
-						:ui="{ base: 'p-0.5' }"
-						@click="paletteStore.selectedColor = 0"
-					>
-						<div class="aspect-square w-8 bg-black rounded-sm"></div>
-					</UButton>
-					<UButton
-						:color="paletteStore.selectedColor === 2 ? 'primary' : 'neutral'"
-						:variant="paletteStore.selectedColor === 2 ? 'solid' : 'soft'"
-						:ui="{ base: 'p-0.5' }"
-						@click="paletteStore.selectedColor = 2"
-					>
-						<div class="aspect-square w-8 bg-white rounded-sm"></div>
-					</UButton>
-					<UButton
-						:color="paletteStore.selectedColor === 3 ? 'primary' : 'neutral'"
-						:variant="paletteStore.selectedColor === 3 ? 'solid' : 'soft'"
-						:ui="{ base: 'p-0.5' }"
-						@click="paletteStore.selectedColor = 3"
-					>
-						<div class="aspect-square w-8 bg-neutral-400 rounded-sm"></div>
-					</UButton>
+				<div class="flex flex-col gap-4 w-fit">
+					<CharacterGrid
+						:show-grid="showGrid"
+						:show-background="showBackground"
+						:show-tooltip="showTooltip"
+					/>
+					<div class="flex items-center justify-between w-full">
+						<div class="flex items-center gap-2">
+							<UButton
+								:color="
+									paletteStore.selectedColor === 0 ? 'primary' : 'neutral'
+								"
+								:variant="paletteStore.selectedColor === 0 ? 'solid' : 'soft'"
+								:ui="{ base: 'p-0.5' }"
+								@click="paletteStore.selectedColor = 0"
+							>
+								<div class="aspect-square w-8 bg-black rounded-sm"></div>
+							</UButton>
+							<UButton
+								:color="
+									paletteStore.selectedColor === 2 ? 'primary' : 'neutral'
+								"
+								:variant="paletteStore.selectedColor === 2 ? 'solid' : 'soft'"
+								:ui="{ base: 'p-0.5' }"
+								@click="paletteStore.selectedColor = 2"
+							>
+								<div class="aspect-square w-8 bg-white rounded-sm"></div>
+							</UButton>
+							<UButton
+								:color="
+									paletteStore.selectedColor === 3 ? 'primary' : 'neutral'
+								"
+								:variant="paletteStore.selectedColor === 3 ? 'solid' : 'soft'"
+								:ui="{ base: 'p-0.5' }"
+								@click="paletteStore.selectedColor = 3"
+							>
+								<div class="aspect-square w-8 bg-neutral-400 rounded-sm"></div>
+							</UButton>
+						</div>
+						<div class="flex items-center gap-2">
+							<UButton
+								:disabled="!historyStore.canUndo"
+								icon="i-heroicons-arrow-uturn-left"
+								color="neutral"
+								variant="subtle"
+								size="sm"
+								class="rounded-full"
+								:tooltip="{
+									text: 'Undo (Ctrl+Z)',
+									disabled: !historyStore.canUndo
+								}"
+								@click="historyStore.undo()"
+							/>
+							<UButton
+								:disabled="!historyStore.canRedo"
+								icon="i-heroicons-arrow-uturn-right"
+								color="neutral"
+								variant="subtle"
+								size="sm"
+								class="rounded-full"
+								:tooltip="{
+									text: 'Redo (Ctrl+Y)',
+									disabled: !historyStore.canRedo
+								}"
+								@click="historyStore.redo()"
+							/>
+						</div>
+					</div>
 				</div>
-				<p class="text-text text-sm space-y-2">
+				<p class="text-text text-sm space-y-1">
 					Select a color to paint pixels.
 					<br />
 					Left-click on a pixel to change its color.
