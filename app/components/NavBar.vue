@@ -78,7 +78,8 @@ async function readFileAndPostToApi() {
 		<div
 			class="flex p-2 w-full flex-wrap items-center justify-between bg-neutral-900 rounded-lg gap-2"
 		>
-			<div class="flex gap-2 items-center">
+			<div class="flex gap-4 items-center px-2">
+				<img src="/favicon.svg" class="w-8 h-8" />
 				<div class="flex gap-4 items-center">
 					<UInput
 						icon="i-lucide-folder-open"
