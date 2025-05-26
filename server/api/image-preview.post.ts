@@ -1,15 +1,32 @@
 import { defineEventHandler, readBody, setHeader, createError } from "h3"
 import sharp from "sharp"
+import bmp from "sharp-bmp"
 
 /**
  * Processes an image for preview, showing how it will look after transformation
  * @param imageBuffer The image buffer to process
+ * @param isBmp Whether the image is a BMP file
  * @returns Processed image buffer ready for display
  */
-async function processImageForPreview(imageBuffer: Buffer): Promise<Buffer> {
+async function processImageForPreview(
+	imageBuffer: Buffer,
+	isBmp: boolean = false
+): Promise<Buffer> {
 	try {
+		let sharpInstance: sharp.Sharp
+
+		if (isBmp) {
+			// Use sharp-bmp to decode BMP files
+			const bmpResult = bmp.sharpFromBmp(imageBuffer)
+			// Ensure we have a Sharp instance (sharpFromBmp returns Sharp for buffer input)
+			sharpInstance = bmpResult as sharp.Sharp
+		} else {
+			// Use regular sharp for other formats
+			sharpInstance = sharp(imageBuffer)
+		}
+
 		// First, resize image to fit within 288x72 pixels while preserving aspect ratio
-		const resizedImage = await sharp(imageBuffer)
+		const resizedImage = await sharpInstance
 			.resize(288, 72, {
 				fit: "contain", // Preserve aspect ratio, fit within dimensions
 				background: { r: 128, g: 128, b: 128, alpha: 0 }, // Transparent gray background
@@ -123,8 +140,14 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 
+		// Detect if the file is a BMP by checking the file signature
+		const isBmp =
+			imageBuffer.length >= 2 &&
+			imageBuffer[0] === 0x42 &&
+			imageBuffer[1] === 0x4d // "BM" signature for BMP files
+
 		// Process the image for preview
-		const previewBuffer = await processImageForPreview(imageBuffer)
+		const previewBuffer = await processImageForPreview(imageBuffer, isBmp)
 		const endTime = performance.now()
 
 		// Set appropriate headers for image response

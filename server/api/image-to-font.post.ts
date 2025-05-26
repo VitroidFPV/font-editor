@@ -1,5 +1,6 @@
 import { defineEventHandler, readBody } from "h3"
 import sharp from "sharp"
+import bmp from "sharp-bmp"
 
 interface McmCharacter {
 	index: number
@@ -17,15 +18,29 @@ interface McmData {
 /**
  * Processes an image using Sharp and converts it to font tiles
  * @param imageBuffer The image buffer to process
+ * @param isBmp Whether the image is a BMP file
  * @returns Array of 96 tiles (12x18 pixels each) representing the processed image
  */
 async function processImageToTiles(
-	imageBuffer: Buffer
+	imageBuffer: Buffer,
+	isBmp: boolean = false
 ): Promise<McmCharacter[]> {
 	try {
+		let sharpInstance: sharp.Sharp
+
+		if (isBmp) {
+			// Use sharp-bmp to decode BMP files
+			const bmpResult = bmp.sharpFromBmp(imageBuffer)
+			// Ensure we have a Sharp instance (sharpFromBmp returns Sharp for buffer input)
+			sharpInstance = bmpResult as sharp.Sharp
+		} else {
+			// Use regular sharp for other formats
+			sharpInstance = sharp(imageBuffer)
+		}
+
 		// Resize image to fit within 288x72 pixels while preserving aspect ratio
 		// and center it with transparent background
-		const processedImage = await sharp(imageBuffer)
+		const processedImage = await sharpInstance
 			.resize(288, 72, {
 				fit: "contain", // Preserve aspect ratio, fit within dimensions
 				background: { r: 128, g: 128, b: 128, alpha: 0 }, // Transparent gray background
@@ -138,9 +153,15 @@ export default defineEventHandler(async (event) => {
 			}
 		}
 
+		// Detect if the file is a BMP by checking the file signature
+		const isBmp =
+			imageBuffer.length >= 2 &&
+			imageBuffer[0] === 0x42 &&
+			imageBuffer[1] === 0x4d // "BM" signature for BMP files
+
 		// Process the image into tiles
 		const processingStartTime = performance.now()
-		const imageTiles = await processImageToTiles(imageBuffer)
+		const imageTiles = await processImageToTiles(imageBuffer, isBmp)
 		const processingEndTime = performance.now()
 
 		// Create updated font data
