@@ -250,9 +250,9 @@ async function addToFont() {
 			</p>
 			<p>
 				Another advantage over Betaflight Configurator is that you can use any
-				image you want, not just a specific tri-color BMP image. It will do its
-				best to convert any image to a compatible format, but the results may
-				not be perfect.
+				image you want, not just a specific tri-color BMP image (as long as it
+				has a transparent/color fill background). It will do its best to convert
+				any image to a compatible format, but the results may not be perfect.
 			</p>
 			<p>
 				The provided image will be converted to a black and white image with

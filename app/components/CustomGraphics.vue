@@ -521,20 +521,26 @@ const pilotNameString = computed(() => {
 				Select the size of the grid you want to use for your custom graphics.
 			</p>
 			<p>
-				A grid of height 1 can be up to 12 characters wide, height 2 can be up
-				to 5 characters wide, and height 3 can be up to 3 characters wide. When
-				using height 3, the bottom row will use the crosshair characters.
+				A grid with 1 row can have up to 15 columns, 2 rows can have up to 7
+				columns, and 3 rows can have up to 3 columns. When using 3 rows, the
+				bottom row will use the crosshair characters.
 			</p>
 			<p>
-				Download the template to use in your favorite image editor, or upload an
-				image directly here. The image will be automatically resized to fit the
-				grid dimensions and split into individual characters to be used as craft
-				and pilot names.
+				Download the template to use in your favorite image editor, put anything
+				you want over it, and remove the template. Export as a transparent
+				image, then upload it here! The image will be automatically resized to
+				fit the grid dimensions and split into individual characters to be used
+				as craft and pilot names.
 			</p>
 			<p>
-				Craft name is the top row of the grid. For height 2, pilot name is the
-				bottom row. For height 3, pilot name is the middle row and the crosshair
-				characters are used for the bottom row.
+				Use craft_name for the 1st row, pilot_name for the 2nd, and the
+				crosshair for the 3rd. The text you need to use for the 1st and 2nd row
+				is listed next to the grid template.
+			</p>
+			<p class="text-error">
+				This WILL replace some existing characters in the font. They shouldn't
+				really appear anywhere else, but keep that in mind. Only sacrifice the
+				crosshair if you're not using it and want to use it for extra graphics.
 			</p>
 		</div>
 	</div>
