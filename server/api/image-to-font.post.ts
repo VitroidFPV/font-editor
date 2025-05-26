@@ -19,11 +19,19 @@ interface McmData {
  * Processes an image using Sharp and converts it to font tiles
  * @param imageBuffer The image buffer to process
  * @param isBmp Whether the image is a BMP file
- * @returns Array of 96 tiles (12x18 pixels each) representing the processed image
+ * @param width Target width for the processed image (default: 288)
+ * @param height Target height for the processed image (default: 72)
+ * @param tileWidth Width of each tile (default: 12)
+ * @param tileHeight Height of each tile (default: 18)
+ * @returns Array of tiles representing the processed image
  */
 async function processImageToTiles(
 	imageBuffer: Buffer,
-	isBmp: boolean = false
+	isBmp: boolean = false,
+	width: number = 288,
+	height: number = 72,
+	tileWidth: number = 12,
+	tileHeight: number = 18
 ): Promise<McmCharacter[]> {
 	try {
 		let sharpInstance: sharp.Sharp
@@ -38,10 +46,10 @@ async function processImageToTiles(
 			sharpInstance = sharp(imageBuffer)
 		}
 
-		// Resize image to fit within 288x72 pixels while preserving aspect ratio
+		// Resize image to fit within specified dimensions while preserving aspect ratio
 		// and center it with transparent background
 		const processedImage = await sharpInstance
-			.resize(288, 72, {
+			.resize(width, height, {
 				fit: "contain", // Preserve aspect ratio, fit within dimensions
 				background: { r: 128, g: 128, b: 128, alpha: 0 }, // Transparent gray background
 				position: "center" // Center the image
@@ -51,31 +59,37 @@ async function processImageToTiles(
 			.toBuffer({ resolveWithObject: true })
 
 		const { data, info } = processedImage
-		const { width, height, channels } = info
+		const { width: actualWidth, height: actualHeight, channels } = info
 
 		// Convert the raw pixel data to our tile format
 		const tiles: McmCharacter[] = []
 
-		// Calculate tiles (24 wide x 4 high = 96 tiles total)
-		const tilesWide = Math.floor(width / 12) // 288 / 12 = 24
-		const tilesHigh = Math.floor(height / 18) // 72 / 18 = 4
+		// Calculate tiles dynamically based on dimensions
+		const tilesWide = Math.floor(actualWidth / tileWidth)
+		const tilesHigh = Math.floor(actualHeight / tileHeight)
 
 		for (let tileY = 0; tileY < tilesHigh; tileY++) {
 			for (let tileX = 0; tileX < tilesWide; tileX++) {
 				const tileIndex = tileY * tilesWide + tileX
-				const pixels: number[][] = Array(18)
+				const pixels: number[][] = Array(tileHeight)
 					.fill(0)
-					.map(() => Array(12).fill(1))
+					.map(() => Array(tileWidth).fill(1))
 
-				// Process each pixel in this 12x18 tile
-				for (let y = 0; y < 18; y++) {
-					for (let x = 0; x < 12; x++) {
+				// Process each pixel in this tile
+				for (let y = 0; y < tileHeight; y++) {
+					for (let x = 0; x < tileWidth; x++) {
 						// Calculate the actual pixel position in the source image
-						const sourceX = tileX * 12 + x
-						const sourceY = tileY * 18 + y
+						const sourceX = tileX * tileWidth + x
+						const sourceY = tileY * tileHeight + y
+
+						// Skip if we're outside the actual image bounds
+						if (sourceX >= actualWidth || sourceY >= actualHeight) {
+							pixels[y][x] = 1 // Transparent
+							continue
+						}
 
 						// Calculate the pixel index in the raw data buffer
-						const pixelIndex = (sourceY * width + sourceX) * channels
+						const pixelIndex = (sourceY * actualWidth + sourceX) * channels
 
 						// Get RGBA values (now we ensure alpha channel exists)
 						const r = data[pixelIndex]
@@ -108,9 +122,9 @@ async function processImageToTiles(
 				}
 
 				tiles.push({
-					index: 160 + tileIndex, // Start at position 160
-					width: 12,
-					height: 18,
+					index: 160 + tileIndex, // Start at position 160 for logo functionality
+					width: tileWidth,
+					height: tileHeight,
 					pixels
 				})
 			}
@@ -137,6 +151,41 @@ export default defineEventHandler(async (event) => {
 			}
 		}
 
+		// Extract dimensions from request body, default to 288x72 for logo functionality
+		const width = body.width || 288
+		const height = body.height || 72
+		const tileWidth = body.tileWidth || 12
+		const tileHeight = body.tileHeight || 18
+
+		// Validate dimensions
+		if (
+			typeof width !== "number" ||
+			typeof height !== "number" ||
+			typeof tileWidth !== "number" ||
+			typeof tileHeight !== "number" ||
+			width <= 0 ||
+			height <= 0 ||
+			tileWidth <= 0 ||
+			tileHeight <= 0 ||
+			width > 4096 ||
+			height > 4096 ||
+			tileWidth > 256 ||
+			tileHeight > 256
+		) {
+			return {
+				success: false,
+				error:
+					"Invalid dimensions. All dimensions must be positive numbers within reasonable limits"
+			}
+		}
+
+		// Validate that dimensions are divisible by tile dimensions for optimal results
+		if (width % tileWidth !== 0 || height % tileHeight !== 0) {
+			console.warn(
+				`Warning: Image dimensions (${width}x${height}) are not evenly divisible by tile dimensions (${tileWidth}x${tileHeight}). Some pixels may be lost.`
+			)
+		}
+
 		// Convert base64 image data to buffer
 		let imageBuffer: Buffer
 		try {
@@ -161,7 +210,14 @@ export default defineEventHandler(async (event) => {
 
 		// Process the image into tiles
 		const processingStartTime = performance.now()
-		const imageTiles = await processImageToTiles(imageBuffer, isBmp)
+		const imageTiles = await processImageToTiles(
+			imageBuffer,
+			isBmp,
+			width,
+			height,
+			tileWidth,
+			tileHeight
+		)
 		const processingEndTime = performance.now()
 
 		// Create updated font data
@@ -184,6 +240,7 @@ export default defineEventHandler(async (event) => {
 		}
 
 		// Replace characters 160-255 with the image tiles
+		// Note: This assumes logo functionality starting at position 160
 		for (const tile of imageTiles) {
 			if (tile.index >= 160 && tile.index < 256) {
 				updatedFontData.characters[tile.index] = tile
@@ -196,6 +253,8 @@ export default defineEventHandler(async (event) => {
 			success: true,
 			data: updatedFontData,
 			tilesAdded: imageTiles.length,
+			processedDimensions: { width, height },
+			tileDimensions: { width: tileWidth, height: tileHeight },
 			timing: {
 				totalTimeMs: endTime - startTime,
 				processingTimeMs: processingEndTime - processingStartTime

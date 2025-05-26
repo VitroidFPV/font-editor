@@ -6,11 +6,15 @@ import bmp from "sharp-bmp"
  * Processes an image for preview, showing how it will look after transformation
  * @param imageBuffer The image buffer to process
  * @param isBmp Whether the image is a BMP file
+ * @param width Target width for the processed image (default: 288)
+ * @param height Target height for the processed image (default: 72)
  * @returns Processed image buffer ready for display
  */
 async function processImageForPreview(
 	imageBuffer: Buffer,
-	isBmp: boolean = false
+	isBmp: boolean = false,
+	width: number = 288,
+	height: number = 72
 ): Promise<Buffer> {
 	try {
 		let sharpInstance: sharp.Sharp
@@ -25,9 +29,9 @@ async function processImageForPreview(
 			sharpInstance = sharp(imageBuffer)
 		}
 
-		// First, resize image to fit within 288x72 pixels while preserving aspect ratio
+		// First, resize image to fit within specified dimensions while preserving aspect ratio
 		const resizedImage = await sharpInstance
-			.resize(288, 72, {
+			.resize(width, height, {
 				fit: "contain", // Preserve aspect ratio, fit within dimensions
 				background: { r: 128, g: 128, b: 128, alpha: 0 }, // Transparent gray background
 				position: "center" // Center the image
@@ -37,16 +41,16 @@ async function processImageForPreview(
 			.toBuffer({ resolveWithObject: true })
 
 		const { data, info } = resizedImage
-		const { width, height, channels } = info
+		const { width: actualWidth, height: actualHeight, channels } = info
 
 		// Create a new buffer for the processed image
-		const processedData = Buffer.alloc(width * height * 4) // RGBA
+		const processedData = Buffer.alloc(actualWidth * actualHeight * 4) // RGBA
 
 		// Process each pixel to show the transformation
-		for (let y = 0; y < height; y++) {
-			for (let x = 0; x < width; x++) {
-				const inputIndex = (y * width + x) * channels
-				const outputIndex = (y * width + x) * 4
+		for (let y = 0; y < actualHeight; y++) {
+			for (let x = 0; x < actualWidth; x++) {
+				const inputIndex = (y * actualWidth + x) * channels
+				const outputIndex = (y * actualWidth + x) * 4
 
 				// Get RGBA values from input
 				const r = data[inputIndex]
@@ -95,8 +99,8 @@ async function processImageForPreview(
 		// Convert back to PNG for display
 		const previewBuffer = await sharp(processedData, {
 			raw: {
-				width,
-				height,
+				width: actualWidth,
+				height: actualHeight,
 				channels: 4
 			}
 		})
@@ -124,6 +128,26 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 
+		// Extract dimensions from request body, default to 288x72 for logo functionality
+		const width = body.width || 288
+		const height = body.height || 72
+
+		// Validate dimensions
+		if (
+			typeof width !== "number" ||
+			typeof height !== "number" ||
+			width <= 0 ||
+			height <= 0 ||
+			width > 4096 ||
+			height > 4096
+		) {
+			throw createError({
+				statusCode: 400,
+				statusMessage:
+					"Invalid dimensions. Width and height must be positive numbers <= 4096"
+			})
+		}
+
 		// Convert base64 image data to buffer
 		let imageBuffer: Buffer
 		try {
@@ -147,7 +171,12 @@ export default defineEventHandler(async (event) => {
 			imageBuffer[1] === 0x4d // "BM" signature for BMP files
 
 		// Process the image for preview
-		const previewBuffer = await processImageForPreview(imageBuffer, isBmp)
+		const previewBuffer = await processImageForPreview(
+			imageBuffer,
+			isBmp,
+			width,
+			height
+		)
 		const endTime = performance.now()
 
 		// Set appropriate headers for image response
@@ -159,6 +188,7 @@ export default defineEventHandler(async (event) => {
 			"X-Processing-Time",
 			`${(endTime - startTime).toFixed(2)}ms`
 		)
+		setHeader(event, "X-Processed-Dimensions", `${width}x${height}`)
 
 		return previewBuffer
 	} catch (error) {
