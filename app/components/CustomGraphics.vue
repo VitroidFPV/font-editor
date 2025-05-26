@@ -360,7 +360,7 @@ const pilotNameString = computed(() => {
 </script>
 
 <template>
-	<div class="flex flex-col xl:flex-row gap-4">
+	<div class="flex flex-col xl:flex-row gap-4 items-center xl:items-start">
 		<div class="flex flex-col gap-4 w-full items-center">
 			<div class="flex flex-col gap-4 w-fit items-center">
 				<div class="flex gap-4 w-fit items-center">
