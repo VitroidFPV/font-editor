@@ -28,12 +28,12 @@ const handleScroll = (event: Event) => {
 const tabs = [
 	{
 		label: "Painting Tools",
-		icon: "i-heroicons-pencil-square",
+		icon: "i-lucide-brush",
 		slot: "character-editor" as const
 	},
 	{
 		label: "Image Tools",
-		icon: "i-heroicons-image",
+		icon: "i-lucide-file-image",
 		slot: "image-editor" as const
 	}
 ] satisfies TabsItem[]
@@ -43,7 +43,7 @@ const tabs = [
 	<h2 class="text-2xl font-bold text-primary-400">Character Preview</h2>
 
 	<UTabs
-		v-if="fontStore.hasData"
+		v-if="true"
 		:items="tabs"
 		variant="link"
 		class="gap-4 w-full"
@@ -53,8 +53,8 @@ const tabs = [
 	>
 		<template #character-editor>
 			<div class="flex flex-col gap-4">
-				<div class="flex gap-4">
-					<div class="flex flex-col gap-4 w-fit">
+				<div class="flex flex-col xl:flex-row gap-4">
+					<div class="flex flex-col gap-4 w-full">
 						<CharacterGrid
 							:show-grid="optionsStore.showGrid"
 							:show-background="optionsStore.showBackground"
@@ -145,7 +145,7 @@ const tabs = [
 							</span>
 						</div>
 					</div>
-					<div class="flex flex-col gap-2 text-text text-sm max-w-[50ch]">
+					<div class="flex flex-col gap-2 text-text text-sm max-w-[50ch] w-fit">
 						<p>
 							Select a character to edit, either from the font preview or from
 							the input field. Enter in a specific index, or use the scroll
