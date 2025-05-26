@@ -58,7 +58,7 @@ function isSelected(x: number, y: number) {
 				<UTooltip
 					v-for="x in 16"
 					:key="'cell-' + x + '-' + y"
-					:text="`${getCharacterIndex(x, y, false).toString(16).toUpperCase()}`"
+					:text="`${getCharacterIndex(x, y, false)} (${getCharacterIndex(x, y, false).toString(16).toUpperCase()} hex)`"
 					:ui="{
 						content: 'bg-primary-400'
 					}"
