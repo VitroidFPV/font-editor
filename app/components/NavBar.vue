@@ -15,7 +15,7 @@ function handleFileChange(event: Event) {
 		file.value = input.files[0] as File
 		// Clear any previous errors when selecting a new file
 		error.value = null
-		console.log("📂 File selected:", file.value)
+		console.log("📂 Font File selected:", file.value)
 	}
 }
 

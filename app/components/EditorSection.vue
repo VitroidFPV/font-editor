@@ -173,6 +173,7 @@ const tabs = [
 		</template>
 		<template #image-editor>
 			<div>Image Editor</div>
+			<ImageToLogo />
 		</template>
 	</UTabs>
 	<div

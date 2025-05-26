@@ -9,7 +9,7 @@ const optionsStore = useOptionsStore()
 <template>
 	<h2 class="text-2xl font-bold text-primary-400">Font Preview</h2>
 
-	<template v-if="fontStore.hasData">
+	<template v-if="true">
 		<div class="flex gap-4 flex-wrap py-1.5">
 			<USwitch v-model="optionsStore.showGrid" label="Show Grid" />
 			<USwitch v-model="optionsStore.showTooltip" label="Show Tooltip" />
