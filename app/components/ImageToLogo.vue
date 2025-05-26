@@ -166,84 +166,99 @@ async function addToFont() {
 </script>
 
 <template>
-	<div class="flex flex-col gap-4 w-fit">
-		<div class="flex gap-4 items-center">
-			<UInput
-				icon="i-lucide-folder-open"
-				variant="soft"
-				type="file"
-				accept=".bmp,.png,.jpg,.jpeg,.webp,.gif,.tiff"
-				:ui="{
-					root: 'w-full',
-					base: 'file:mr-2 file:bg-primary-400 file:cursor-pointer file:text-inverted file:py-1 file:px-2 file:rounded-md',
-					leadingIcon: 'text-primary-400'
-				}"
-				@change="handleFileChange"
-			/>
-		</div>
-
-		<!-- Image previews -->
-		<div class="flex flex-col gap-4">
-			<!-- Original image -->
-			<div class="flex flex-col gap-2">
-				<h4 class="text-sm font-medium text-neutral-400">Original Image</h4>
-				<img
-					v-if="imageUrl"
-					:src="imageUrl"
-					alt="Selected image preview"
-					class="w-sm rounded-md shadow-md"
+	<div class="flex flex-col xl:flex-row gap-4">
+		<div class="flex flex-col gap-4 w-full">
+			<div class="flex gap-4 items-center">
+				<UInput
+					icon="i-lucide-folder-open"
+					variant="soft"
+					type="file"
+					accept=".bmp,.png,.jpg,.jpeg,.webp,.gif,.tiff"
+					:ui="{
+						root: 'w-full',
+						base: 'file:mr-2 file:bg-primary-400 file:cursor-pointer file:text-inverted file:py-1 file:px-2 file:rounded-md',
+						leadingIcon: 'text-primary-400'
+					}"
+					@change="handleFileChange"
 				/>
-				<div
-					v-else
-					class="w-sm aspect-square bg-neutral-200/10 border-neutral-200/10 border-dashed border-2 rounded-md shadow-md"
-				>
-					<div class="flex items-center justify-center h-full">
-						<UIcon name="i-lucide-image" class="text-neutral-400" />
-					</div>
-				</div>
 			</div>
-
-			<!-- Processed preview -->
-			<div class="flex flex-col gap-2">
-				<h4 class="text-sm font-medium text-neutral-400">Font Preview</h4>
-				<div
-					v-if="isPreviewLoading"
-					class="w-sm aspect-[288/72] bg-neutral-200/10 border-neutral-200/10 border-dashed border-2 rounded-md shadow-md flex items-center justify-center"
-				>
-					<UIcon
-						name="i-lucide-loader-2"
-						class="text-neutral-400 animate-spin"
+			<!-- Image previews -->
+			<div class="flex flex-col gap-4">
+				<!-- Original image -->
+				<div class="flex flex-col gap-2 items-center">
+					<h4 class="text-sm font-medium text-muted">Original Image</h4>
+					<img
+						v-if="imageUrl"
+						:src="imageUrl"
+						alt="Selected image preview"
+						class="w-sm rounded-md shadow-md"
 					/>
+					<div
+						v-else
+						class="w-sm aspect-square bg-neutral-200/10 border-neutral-200/10 border-dashed border-2 rounded-md shadow-md"
+					>
+						<div class="flex items-center justify-center h-full">
+							<UIcon name="i-lucide-image" class="text-neutral-400" />
+						</div>
+					</div>
 				</div>
-				<img
-					v-else-if="previewUrl"
-					:src="previewUrl"
-					alt="Processed image preview"
-					class="w-sm rounded-md shadow-md bg-neutral-200/10"
-					style="image-rendering: pixelated"
-				/>
-				<div
-					v-else
-					class="w-sm aspect-[288/72] bg-neutral-200/10 border-neutral-200/10 border-dashed border-2 rounded-md shadow-md"
-				>
-					<div class="flex items-center justify-center h-full">
-						<UIcon name="i-lucide-eye" class="text-neutral-400" />
+				<div class="flex flex-col gap-2 items-center">
+					<h4 class="text-sm font-medium text-muted">Font Preview</h4>
+					<div
+						v-if="isPreviewLoading"
+						class="w-sm aspect-[288/72] bg-neutral-200/10 border-neutral-200/10 border-dashed border-2 rounded-md shadow-md flex items-center justify-center"
+					>
+						<UIcon
+							name="i-lucide-loader-2"
+							class="text-neutral-400 animate-spin"
+						/>
+					</div>
+					<img
+						v-else-if="previewUrl"
+						:src="previewUrl"
+						alt="Processed image preview"
+						class="w-sm rounded-md shadow-md bg-neutral-200/10"
+						style="image-rendering: pixelated"
+					/>
+					<div
+						v-else
+						class="w-sm aspect-[288/72] bg-neutral-200/10 border-neutral-200/10 border-dashed border-2 rounded-md shadow-md"
+					>
+						<div class="flex items-center justify-center h-full">
+							<UIcon name="i-lucide-eye" class="text-neutral-400" />
+						</div>
 					</div>
 				</div>
 			</div>
+			<!-- Action buttons -->
+			<UButton
+				:disabled="!file || isLoading"
+				:loading="isLoading"
+				variant="solid"
+				class="justify-center"
+				@click="addToFont"
+			>
+				{{ isLoading ? "Processing..." : "Add to font" }}
+			</UButton>
+			<div v-if="error" class="text-red-500 text-sm">{{ error }}</div>
 		</div>
-
-		<!-- Action buttons -->
-		<UButton
-			:disabled="!file || isLoading"
-			:loading="isLoading"
-			variant="solid"
-			class="justify-center"
-			@click="addToFont"
-		>
-			{{ isLoading ? "Processing..." : "Add to font" }}
-		</UButton>
-
-		<div v-if="error" class="text-red-500 text-sm">{{ error }}</div>
+		<div class="flex flex-col gap-2 text-text text-sm max-w-[50ch] w-fit">
+			<p>
+				Upload an image that will be used as a logo. Skip a step when uploading
+				it from Betaflight Configurator every time you want to use the font for
+				your new build!
+			</p>
+			<p>
+				Another advantage over Betaflight Configurator is that you can use any
+				image you want, not just a specific tri-color BMP image. It will do its
+				best to convert any image to a compatible format, but the results may
+				not be perfect.
+			</p>
+			<p>
+				The provided image will be converted to a black and white image with
+				transparent background, for best results use a high-contrast image with
+				a 288x72px resolution so that it doesn't have to be scaled up/down.
+			</p>
+		</div>
 	</div>
 </template>

@@ -27,12 +27,12 @@ const handleScroll = (event: Event) => {
 
 const tabs = [
 	{
-		label: "Painting Tools",
+		label: "Painting",
 		icon: "i-lucide-brush",
 		slot: "character-editor" as const
 	},
 	{
-		label: "Image Tools",
+		label: "Logo Upload",
 		icon: "i-lucide-file-image",
 		slot: "image-editor" as const
 	}
@@ -40,7 +40,7 @@ const tabs = [
 </script>
 
 <template>
-	<h2 class="text-2xl font-bold text-primary-400">Character Preview</h2>
+	<h2 class="text-2xl font-bold text-primary-400">Character Editor</h2>
 
 	<UTabs
 		v-if="true"
@@ -54,7 +54,7 @@ const tabs = [
 		<template #character-editor>
 			<div class="flex flex-col gap-4">
 				<div class="flex flex-col xl:flex-row gap-4">
-					<div class="flex flex-col gap-4 w-full">
+					<div class="flex flex-col gap-4 w-full items-center">
 						<CharacterGrid
 							:show-grid="optionsStore.showGrid"
 							:show-background="optionsStore.showBackground"
@@ -172,7 +172,6 @@ const tabs = [
 			</div>
 		</template>
 		<template #image-editor>
-			<div>Image Editor</div>
 			<ImageToLogo />
 		</template>
 	</UTabs>
