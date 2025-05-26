@@ -35,6 +35,11 @@ const tabs = [
 		label: "Logo Upload",
 		icon: "i-lucide-file-image",
 		slot: "image-editor" as const
+	},
+	{
+		label: "Custom Graphics",
+		icon: "i-lucide-image",
+		slot: "custom-graphics" as const
 	}
 ] satisfies TabsItem[]
 </script>
@@ -173,6 +178,9 @@ const tabs = [
 		</template>
 		<template #image-editor>
 			<ImageToLogo />
+		</template>
+		<template #custom-graphics>
+			<CustomGraphics />
 		</template>
 	</UTabs>
 	<div

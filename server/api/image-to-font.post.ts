@@ -31,7 +31,9 @@ async function processImageToTiles(
 	width: number = 288,
 	height: number = 72,
 	tileWidth: number = 12,
-	tileHeight: number = 18
+	tileHeight: number = 18,
+	startIndex: number = 160,
+	characterMapping: number[] | null = null
 ): Promise<McmCharacter[]> {
 	try {
 		let sharpInstance: sharp.Sharp
@@ -121,8 +123,16 @@ async function processImageToTiles(
 					}
 				}
 
+				// Determine the character index for this tile
+				let characterIndex: number
+				if (characterMapping && tileIndex < characterMapping.length) {
+					characterIndex = characterMapping[tileIndex]
+				} else {
+					characterIndex = startIndex + tileIndex
+				}
+
 				tiles.push({
-					index: 160 + tileIndex, // Start at position 160 for logo functionality
+					index: characterIndex,
 					width: tileWidth,
 					height: tileHeight,
 					pixels
@@ -156,6 +166,8 @@ export default defineEventHandler(async (event) => {
 		const height = body.height || 72
 		const tileWidth = body.tileWidth || 12
 		const tileHeight = body.tileHeight || 18
+		const startIndex = body.startIndex || 160 // Default to 160 for logo functionality
+		const characterMapping = body.characterMapping || null // Optional array of character indexes to map tiles to
 
 		// Validate dimensions
 		if (
@@ -216,7 +228,9 @@ export default defineEventHandler(async (event) => {
 			width,
 			height,
 			tileWidth,
-			tileHeight
+			tileHeight,
+			startIndex,
+			characterMapping
 		)
 		const processingEndTime = performance.now()
 
@@ -239,10 +253,9 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 
-		// Replace characters 160-255 with the image tiles
-		// Note: This assumes logo functionality starting at position 160
+		// Replace characters with the image tiles
 		for (const tile of imageTiles) {
-			if (tile.index >= 160 && tile.index < 256) {
+			if (tile.index >= 0 && tile.index < 256) {
 				updatedFontData.characters[tile.index] = tile
 			}
 		}
