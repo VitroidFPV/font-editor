@@ -7,7 +7,8 @@ export default defineNuxtConfig({
 		"@nuxt/eslint",
 		"@nuxt/fonts",
 		"@nuxt/icon",
-		"@pinia/nuxt"
+		"@pinia/nuxt",
+		"@morev/vue-transitions/nuxt"
 	],
 
 	css: ["~/assets/css/main.css"],
