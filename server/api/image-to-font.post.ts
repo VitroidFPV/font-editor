@@ -23,12 +23,15 @@ async function processImageToTiles(
 	imageBuffer: Buffer
 ): Promise<McmCharacter[]> {
 	try {
-		// Resize image to exactly 288x72 pixels using Sharp
+		// Resize image to fit within 288x72 pixels while preserving aspect ratio
+		// and center it with transparent background
 		const processedImage = await sharp(imageBuffer)
 			.resize(288, 72, {
-				fit: "fill", // Stretch to exact dimensions
-				kernel: "nearest" // Use nearest neighbor for pixel art
+				fit: "contain", // Preserve aspect ratio, fit within dimensions
+				background: { r: 128, g: 128, b: 128, alpha: 0 }, // Transparent gray background
+				position: "center" // Center the image
 			})
+			.ensureAlpha() // Ensure we have alpha channel for transparency
 			.raw() // Get raw pixel data
 			.toBuffer({ resolveWithObject: true })
 
@@ -59,10 +62,17 @@ async function processImageToTiles(
 						// Calculate the pixel index in the raw data buffer
 						const pixelIndex = (sourceY * width + sourceX) * channels
 
-						// Get RGB values (assuming RGB or RGBA)
+						// Get RGBA values (now we ensure alpha channel exists)
 						const r = data[pixelIndex]
 						const g = data[pixelIndex + 1]
 						const b = data[pixelIndex + 2]
+						const a = channels > 3 ? data[pixelIndex + 3] : 255
+
+						// If pixel is transparent or semi-transparent, make it transparent
+						if (a < 128) {
+							pixels[y][x] = 1 // Transparent
+							continue
+						}
 
 						// Convert to grayscale using luminance formula
 						const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b)

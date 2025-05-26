@@ -24,7 +24,9 @@ interface ApiResponse {
 
 const file = ref<File | null>(null)
 const imageUrl = ref<string | null>(null)
+const previewUrl = ref<string | null>(null)
 const isLoading = ref(false)
+const isPreviewLoading = ref(false)
 const error = ref<string | null>(null)
 
 // Get the font store
@@ -41,7 +43,67 @@ function handleFileChange(event: Event) {
 			URL.revokeObjectURL(imageUrl.value)
 		}
 		imageUrl.value = URL.createObjectURL(file.value)
+		// Clear any previous preview
+		if (previewUrl.value) {
+			URL.revokeObjectURL(previewUrl.value)
+			previewUrl.value = null
+		}
 		console.log("📂 Image File selected:", file.value)
+
+		// Automatically generate preview
+		generatePreview()
+	}
+}
+
+async function generatePreview() {
+	if (!file.value) {
+		error.value = "Please select an image first"
+		return
+	}
+
+	isPreviewLoading.value = true
+	error.value = null
+
+	try {
+		// Convert file to base64
+		const reader = new FileReader()
+		const imageDataPromise = new Promise<string>((resolve, reject) => {
+			reader.onload = () => resolve(reader.result as string)
+			reader.onerror = () => reject(new Error("Failed to read file"))
+		})
+		reader.readAsDataURL(file.value)
+
+		const imageData = await imageDataPromise
+
+		// Call the image-preview API endpoint
+		const response = await fetch("/api/image-preview", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				imageData
+			})
+		})
+
+		if (response.ok) {
+			// Create blob URL for the preview image
+			const blob = await response.blob()
+			if (previewUrl.value) {
+				URL.revokeObjectURL(previewUrl.value)
+			}
+			previewUrl.value = URL.createObjectURL(blob)
+			console.log("✅ Preview generated successfully")
+		} else {
+			const errorText = await response.text()
+			error.value = `Failed to generate preview: ${errorText}`
+		}
+	} catch (err) {
+		console.error("Error generating preview:", err)
+		error.value =
+			err instanceof Error ? err.message : "Failed to generate preview"
+	} finally {
+		isPreviewLoading.value = false
 	}
 }
 
@@ -91,13 +153,6 @@ async function addToFont() {
 					`⏱️ Processing took ${response.timing.processingTimeMs.toFixed(2)}ms`
 				)
 			}
-
-			// Clear the selected file after successful processing
-			file.value = null
-			if (imageUrl.value) {
-				URL.revokeObjectURL(imageUrl.value)
-				imageUrl.value = null
-			}
 		} else {
 			error.value = response.error || "Failed to process image"
 		}
@@ -126,20 +181,59 @@ async function addToFont() {
 				@change="handleFileChange"
 			/>
 		</div>
-		<img
-			v-if="imageUrl"
-			:src="imageUrl"
-			alt="Selected image preview"
-			class="w-sm rounded-md shadow-md"
-		/>
-		<div
-			v-else
-			class="w-sm aspect-[288/72] bg-neutral-200/10 border-neutral-200/10 border-dashed border-2 rounded-md shadow-md"
-		>
-			<div class="flex items-center justify-center h-full">
-				<UIcon name="i-lucide-image" class="text-neutral-400" />
+
+		<!-- Image previews -->
+		<div class="flex flex-col gap-4">
+			<!-- Original image -->
+			<div class="flex flex-col gap-2">
+				<h4 class="text-sm font-medium text-neutral-400">Original Image</h4>
+				<img
+					v-if="imageUrl"
+					:src="imageUrl"
+					alt="Selected image preview"
+					class="w-sm rounded-md shadow-md"
+				/>
+				<div
+					v-else
+					class="w-sm aspect-square bg-neutral-200/10 border-neutral-200/10 border-dashed border-2 rounded-md shadow-md"
+				>
+					<div class="flex items-center justify-center h-full">
+						<UIcon name="i-lucide-image" class="text-neutral-400" />
+					</div>
+				</div>
+			</div>
+
+			<!-- Processed preview -->
+			<div class="flex flex-col gap-2">
+				<h4 class="text-sm font-medium text-neutral-400">Font Preview</h4>
+				<div
+					v-if="isPreviewLoading"
+					class="w-sm aspect-[288/72] bg-neutral-200/10 border-neutral-200/10 border-dashed border-2 rounded-md shadow-md flex items-center justify-center"
+				>
+					<UIcon
+						name="i-lucide-loader-2"
+						class="text-neutral-400 animate-spin"
+					/>
+				</div>
+				<img
+					v-else-if="previewUrl"
+					:src="previewUrl"
+					alt="Processed image preview"
+					class="w-sm rounded-md shadow-md bg-neutral-200/10"
+					style="image-rendering: pixelated"
+				/>
+				<div
+					v-else
+					class="w-sm aspect-[288/72] bg-neutral-200/10 border-neutral-200/10 border-dashed border-2 rounded-md shadow-md"
+				>
+					<div class="flex items-center justify-center h-full">
+						<UIcon name="i-lucide-eye" class="text-neutral-400" />
+					</div>
+				</div>
 			</div>
 		</div>
+
+		<!-- Action buttons -->
 		<UButton
 			:disabled="!file || isLoading"
 			:loading="isLoading"
@@ -149,6 +243,7 @@ async function addToFont() {
 		>
 			{{ isLoading ? "Processing..." : "Add to font" }}
 		</UButton>
+
 		<div v-if="error" class="text-red-500 text-sm">{{ error }}</div>
 	</div>
 </template>
