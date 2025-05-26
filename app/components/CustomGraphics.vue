@@ -542,6 +542,11 @@ const pilotNameString = computed(() => {
 				really appear anywhere else, but keep that in mind. Only sacrifice the
 				crosshair if you're not using it and want to use it for extra graphics.
 			</p>
+			<p class="text-success">
+				Put the craft and pilot names in the Configuration tab in Betaflight
+				Configurator, some of the characters will not work correctly when set
+				through the CLI.
+			</p>
 		</div>
 	</div>
 </template>
