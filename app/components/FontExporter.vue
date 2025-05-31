@@ -228,7 +228,7 @@ async function exportToHeader() {
 			:disabled="!fontStore.hasData || isExportingMcm || isExportingHeader || isUploading"
 			color="primary"
 			icon="i-heroicons-arrow-down-tray"
-			variant="soft"ґґ
+			variant="soft"
 			@click="exportToMcm"
 		>
 			Export MCM
